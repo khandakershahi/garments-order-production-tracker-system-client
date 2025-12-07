@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaMoon, FaSun } from 'react-icons/fa';
+import Logo from '../../Logo/Logo';
+import { NavLink } from 'react-router';
 
 
 const Navbar = () => {
@@ -7,7 +9,7 @@ const Navbar = () => {
 
     useEffect(() => {
         localStorage.setItem('isdark', JSON.stringify(isdark));
-        document.documentElement.setAttribute('data-theme', isdark ? 'night' : 'winter');
+        document.documentElement.setAttribute('data-theme', isdark ? 'customNight' : 'customWinter');
     }, [isdark]);
 
     const links = <>
@@ -15,8 +17,9 @@ const Navbar = () => {
         <li><a>All Products</a></li>
         <li><a>About Us</a></li>
         <li><a>Contact</a></li>
-        <li><a>Login</a></li>
-        <li><a>Register</a></li>
+        <li><NavLink to='/' className='btn btn-primary mr-3'>Login</NavLink></li>
+        <li><NavLink to='/' className='btn btn-secondary'>Register</NavLink></li>
+
     </>;
 
     return (
@@ -60,7 +63,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Logo */}
-                    <a className="btn btn-ghost text-xl">GarmentTrack</a>
+                    <Logo></Logo>
                 </div>
 
                 {/* RIGHT SIDE (Desktop Menu) */}

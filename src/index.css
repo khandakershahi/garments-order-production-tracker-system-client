@@ -1,4 +1,114 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: winter --default, night --prefersdark, cupcake;
+@plugin "daisyui";
+
+/* -------------------------------
+   LIGHT THEME  (customWinter)
+-------------------------------- */
+@plugin "daisyui/theme" {
+  name: "customWinter";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: oklch(98% 0.015 250);
+  --color-base-200: oklch(96% 0.018 250);
+  --color-base-300: oklch(92% 0.02 250);
+  --color-base-content: oklch(25% 0.03 250);
+
+  /* Primary brand color (#f4831d) */
+  --color-primary: #f4831d;
+  --color-primary-content: #ffffff;
+
+  /* Soft purple secondary */
+  --color-secondary: oklch(72% 0.12 280);
+  --color-secondary-content: oklch(20% 0.02 280);
+
+  /* Fresh accent (good for buttons) */
+  --color-accent: oklch(78% 0.15 170);
+  --color-accent-content: oklch(20% 0.02 170);
+
+  /* Neutral (shadows, borders, cards) */
+  --color-neutral: oklch(40% 0.04 260);
+  --color-neutral-content: oklch(96% 0.01 260);
+
+  /* State colors */
+  --color-info: oklch(75% 0.1 220);
+  --color-info-content: oklch(20% 0.02 220);
+
+  --color-success: oklch(72% 0.12 150);
+  --color-success-content: oklch(20% 0.02 150);
+
+  --color-warning: oklch(85% 0.15 80);
+  --color-warning-content: oklch(20% 0.02 80);
+
+  --color-error: oklch(65% 0.18 20);
+  --color-error-content: oklch(98% 0.01 20);
+
+  /* Radius / effects */
+  --radius-selector: 0.8rem;
+  --radius-field: 0.45rem;
+  --radius-box: 1rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* -------------------------------
+   DARK THEME (night)
+-------------------------------- */
+@plugin "daisyui/theme" {
+  name: "customNight";
+  prefersdark: true;
+  color-scheme: dark;
+
+  /* Base colors — deep but readable */
+  --color-base-100: oklch(21% 0.02 260);
+  --color-base-200: oklch(18% 0.02 260);
+  --color-base-300: oklch(15% 0.02 260);
+  --color-base-content: oklch(92% 0.01 260);
+
+  /* Primary (same brand color) */
+  --color-primary: #f4831d;
+  --color-primary-content: #1b1205;
+
+  /* Dark-mode secondary */
+  --color-secondary: oklch(68% 0.14 280);
+  --color-secondary-content: oklch(14% 0.02 280);
+
+  /* Accent — teal / cyan glow */
+  --color-accent: oklch(72% 0.16 180);
+  --color-accent-content: oklch(12% 0.02 180);
+
+  /* Neutral — smoky gray */
+  --color-neutral: oklch(30% 0.03 260);
+  --color-neutral-content: oklch(90% 0.01 260);
+
+  /* State colors */
+  --color-info: oklch(70% 0.14 230);
+  --color-info-content: #000;
+
+  --color-success: oklch(73% 0.14 155);
+  --color-success-content: #000;
+
+  --color-warning: oklch(80% 0.15 80);
+  --color-warning-content: #000;
+
+  --color-error: oklch(68% 0.16 20);
+  --color-error-content: #000;
+
+  /* Radius / effects */
+  --radius-selector: 0.8rem;
+  --radius-field: 0.45rem;
+  --radius-box: 1rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
 }

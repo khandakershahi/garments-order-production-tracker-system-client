@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaTwitter, FaYoutube, FaFacebook } from 'react-icons/fa'; // Requires react-icons package
+import Logo from '../../Logo/Logo';
 
 
 const Footer = () => {
@@ -10,7 +11,7 @@ const Footer = () => {
 
                     {/* LOGO + DESCRIPTION */}
                     <div>
-                        <h2 className="text-2xl font-bold">GarmentTrack</h2>
+                        <Logo></Logo>
                         <p className="mt-2">
                             A smart tracking solution for garment production, orders,
                             inventory, and real-time progress monitoring.
