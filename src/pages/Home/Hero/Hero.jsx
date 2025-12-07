@@ -3,13 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 // =======================================================
-// 1. IMAGE IMPORTS & SLIDE DATA (Unchanged)
+// 1. IMAGE IMPORTS & SLIDE DATA (Refactored to use DaisyUI backgrounds)
 // =======================================================
 import BannerImg1 from '../../../assets/men-green-panjabi.png';
 import BannerImg2 from '../../../assets/Women-Sharee.png';
 import BannerImg3 from '../../../assets/Womens-Three-Piece-Set.png';
 
-// Note: I'm keeping the slide data exactly as you provided, with the corrected 'orange' typo
 const heroSlides = [
     {
         id: 1,
@@ -18,7 +17,10 @@ const heroSlides = [
         image: BannerImg1,
         ctaText: "View All Products",
         ctaLink: "/products",
-        bgColor: "bg-green-100",
+        // DaisyUI Classes: bg-secondary for the background
+        bgColor: "bg-info",
+        // Define text color class to maintain readability on the slide background
+        textColor: "text-info-content"
     },
     {
         id: 2,
@@ -27,8 +29,9 @@ const heroSlides = [
         image: BannerImg2,
         ctaText: "Book a Product",
         ctaLink: "/register",
-        // FIX: Corrected typo 'bg-ornage-100' to 'bg-orange-100'
-        bgColor: "bg-orange-100",
+        // DaisyUI Classes: bg-accent for the background
+        bgColor: "bg-accent",
+        textColor: "text-accent-content"
     },
     {
         id: 3,
@@ -37,7 +40,9 @@ const heroSlides = [
         image: BannerImg3,
         ctaText: "Learn More",
         ctaLink: "/about-us",
-        bgColor: "bg-yellow-100",
+        // DaisyUI Classes: bg-info for the background
+        bgColor: "bg-secondary",
+        textColor: "text-secondary-content"
     },
 ];
 
@@ -72,13 +77,11 @@ const slideVariants = {
 };
 
 // =======================================================
-// 3. HERO SLIDER COMPONENT
+// 3. HERO SLIDER COMPONENT (Refactored with DaisyUI)
 // =======================================================
 const Hero = () => {
     const [page, setPage] = useState(0);
     const [direction, setDirection] = useState(0);
-
-    // Removed getDarkBgClass function
 
     const handleNext = () => {
         setDirection(1);
@@ -115,26 +118,27 @@ const Hero = () => {
                     initial="initial"
                     animate="animate"
                     exit="exit"
-                    // FIX: Removed dynamic darkBgClass. The light mode class is the ONLY background class.
+                    // DaisyUI Background Color
                     className={`absolute inset-0 flex items-center justify-center p-8 transition-colors duration-500 ${currentSlide.bgColor}`}
                 >
                     <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between h-full">
                         {/* Descriptive Text Section */}
                         <div className="flex-1 space-y-6 lg:mr-12 text-center lg:text-left">
-                            {/* FIX: Set text explicitly to dark gray/black to ensure visibility */}
-                            <h1 className="text-5xl font-extrabold text-gray-900 leading-tight">
+                            {/* DaisyUI Text Color (defined in slide data to match the background) */}
+                            <h1 className={`text-5xl font-extrabold leading-tight ${currentSlide.textColor}`}>
                                 {currentSlide.title}
                             </h1>
-                            <p className="text-xl text-gray-700 max-w-lg">
+                            <p className={`text-xl max-w-lg opacity-90 ${currentSlide.textColor}`}>
                                 {currentSlide.subtitle}
                             </p>
 
-                            {/* CTA Button */}
+                            {/* CTA Button: btn-primary is the DaisyUI equivalent of bg-indigo-600 */}
                             <a href={currentSlide.ctaLink}>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition duration-300"
+                                    // btn is the base class for DaisyUI buttons
+                                    className="px-8 py-3 btn btn-primary text-white font-semibold rounded-full shadow-lg transition duration-300"
                                 >
                                     {currentSlide.ctaText}
                                 </motion.button>
@@ -146,7 +150,7 @@ const Hero = () => {
                             <img
                                 src={currentSlide.image}
                                 alt={currentSlide.title}
-                                className="object-fill w-auto h-[500px] rounded-lg aspect-auto"
+                                className="object-fill w-auto h-[500px] rounded-lg aspect-auto "
                             />
                         </div>
                     </div>
@@ -156,20 +160,18 @@ const Hero = () => {
             {/* Navigation Buttons (Prev) */}
             <button
                 onClick={handlePrev}
-                // FIX: Removed dark mode class from button background
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/70 rounded-full shadow-lg z-10 hover:bg-white transition"
+                // DaisyUI btn-circle and appropriate styling for light/dark contrast
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 btn btn-circle btn-sm bg-base-100/70 shadow-xl z-10 hover:bg-base-100 transition"
             >
-                {/* FIX: Removed dark mode class from icon color */}
-                <FaChevronLeft className="text-gray-700" />
+                <FaChevronLeft className="text-base-content" />
             </button>
             {/* Navigation Buttons (Next) */}
             <button
                 onClick={handleNext}
-                // FIX: Removed dark mode class from button background
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/70 rounded-full shadow-lg z-10 hover:bg-white transition"
+                // DaisyUI btn-circle and appropriate styling for light/dark contrast
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 btn btn-circle btn-sm bg-base-100/70 shadow-xl z-10 hover:bg-base-100 transition"
             >
-                {/* FIX: Removed dark mode class from icon color */}
-                <FaChevronRight className="text-gray-700" />
+                <FaChevronRight className="text-base-content" />
             </button>
         </div>
     );
