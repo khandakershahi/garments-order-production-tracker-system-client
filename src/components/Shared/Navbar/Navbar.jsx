@@ -17,8 +17,10 @@ const Navbar = () => {
         <li><a>All Products</a></li>
         <li><a>About Us</a></li>
         <li><a>Contact</a></li>
+        <li><NavLink to="/dashboard">Dashboard</NavLink></li>
         <li><NavLink to='/login' className='btn btn-primary mr-3 w-[100px]'>Login</NavLink></li>
         <li><NavLink to='/register' className='btn btn-secondary w-[100px]'>Register</NavLink></li>
+        <li><NavLink to='/register' className='btn btn-secondary w-[100px]'>Logout</NavLink></li>
 
     </>;
 
@@ -68,7 +70,7 @@ const Navbar = () => {
 
                 {/* RIGHT SIDE (Desktop Menu) */}
                 <div className="navbar-end hidden lg:flex items-center gap-4">
-                    <ul className="menu menu-horizontal px-1">
+                    <ul className="menu menu-horizontal px-1 items-center">
                         {links}
                     </ul>
 

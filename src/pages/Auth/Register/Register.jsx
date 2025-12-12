@@ -147,13 +147,11 @@ const Register = () => {
                         <button className="btn btn-neutral mt-4">Register</button>
                     </fieldset>
                     <p>
-                        Already have an account?
-                        <Link
+                        Already have an account? <Link
                             state={location.state}
                             to="/login"
-                            className="text-blue-400 underline"
-                        >
-                            login
+                            className="text-primary underline"
+                        > Login
                         </Link>
                     </p>
                 </form>
