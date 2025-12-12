@@ -3,32 +3,76 @@ import useAuth from "../../../hooks/useAuth";
 import { useLocation } from "react-router";
 import { useNavigate } from "react-router";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+// Since error toast is handled here, we import Swal
+import Swal from 'sweetalert2';
 
-
-const SocialLogin = () => {
+// Receive 'showToast' as a prop from the parent component (Login or Register)
+const SocialLogin = ({ showToast }) => {
     const { signInGoogle } = useAuth();
     const axiosSecure = useAxiosSecure();
     const location = useLocation();
     const navigate = useNavigate();
 
+    const currentPath = location.pathname;
+    const buttonAction = currentPath.includes('/register') ? 'Register' : 'Login';
+    const toastMessage = `${buttonAction} Successful!`;
+
+
     const handleGoogleSignIn = () => {
         signInGoogle()
             .then((result) => {
-                console.log(result.user);
+                const isNewUser = buttonAction === 'Register';
 
-                //create user in the database
-                const userInfo = {
-                    email: result.user.email,
-                    name: result.user.displayName,
-                    photoURL: result.user.photoURL,
+                // 1. Define navigation callback (to be executed after toast timer)
+                const navigateCallback = () => {
+                    navigate(location.state || "/");
                 };
 
-                axiosSecure.post("/users", userInfo).then((res) => {
-                    console.log("user data stored", res);
-                    navigate(location.state || "/");
-                });
+                if (isNewUser) {
+                    // Logic for registration/first-time login
+                    const defaultRole = "buyer";
+                    const defaultStatus = "pending";
+
+                    const userInfo = {
+                        email: result.user.email,
+                        name: result.user.displayName,
+                        photoURL: result.user.photoURL,
+                        role: defaultRole,
+                        status: defaultStatus,
+                    };
+
+                    axiosSecure.post("/users", userInfo).then((res) => {
+                        console.log("User data processed by server:", res.data);
+
+                        // 2. Show toast with the delayed navigation callback
+                        if (showToast) {
+                            showToast(toastMessage, navigateCallback);
+                        } else {
+                            // Fallback (instant navigation if showToast wasn't passed, though unlikely now)
+                            navigateCallback();
+                        }
+                    });
+                } else {
+                    // Logic for successful login (existing user)
+
+                    // 2. Show toast with the delayed navigation callback
+                    if (showToast) {
+                        showToast(toastMessage, navigateCallback);
+                    } else {
+                        navigateCallback();
+                    }
+                }
             })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                console.log(error);
+                // Handle social login error toast
+                Swal.fire({
+                    icon: 'error',
+                    title: `${buttonAction} Failed`,
+                    text: error.message || 'Social sign-in failed.',
+                    confirmButtonText: 'Try Again'
+                });
+            });
     };
 
     return (
@@ -66,7 +110,7 @@ const SocialLogin = () => {
                         ></path>
                     </g>
                 </svg>
-                Login with Google
+                {buttonAction} with Google
             </button>
         </div>
     );

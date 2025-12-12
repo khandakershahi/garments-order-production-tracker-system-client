@@ -1,28 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { FaMoon, FaSun, FaSpinner } from 'react-icons/fa'; // Added FaSpinner
 import Logo from '../../Logo/Logo';
 import { NavLink } from 'react-router';
-
+import useAuth from '../../../hooks/useAuth';
 
 const Navbar = () => {
     const [isdark, setIsdark] = useState(JSON.parse(localStorage.getItem('isdark') || 'false'));
+
+    // DESTRUCTURED NEW 'loading' STATE
+    const { user, logOut, loading } = useAuth();
 
     useEffect(() => {
         localStorage.setItem('isdark', JSON.stringify(isdark));
         document.documentElement.setAttribute('data-theme', isdark ? 'customNight' : 'customWinter');
     }, [isdark]);
 
-    const links = <>
-        <li><a>Home</a></li>
-        <li><a>All Products</a></li>
-        <li><a>About Us</a></li>
-        <li><a>Contact</a></li>
-        <li><NavLink to="/dashboard">Dashboard</NavLink></li>
-        <li><NavLink to='/login' className='btn btn-primary mr-3 w-[100px]'>Login</NavLink></li>
-        <li><NavLink to='/register' className='btn btn-secondary w-[100px]'>Register</NavLink></li>
-        <li><NavLink to='/register' className='btn btn-secondary w-[100px]'>Logout</NavLink></li>
+    const handleLogout = () => {
+        logOut()
+            .then(() => console.log('User logged out'))
+            .catch(error => console.error('Logout error:', error));
+    };
 
+    // -------------------------------------------------------------
+    // 1. LOADING STATE CHECK
+    // -------------------------------------------------------------
+    if (loading) {
+        return (
+            <div className="navbar bg-base-100 shadow-sm container mx-auto">
+                <div className="navbar-start">
+                    <Logo />
+                </div>
+                <div className="navbar-end">
+                    <span className="loading loading-spinner loading-md mr-4"></span>
+                    <p>Loading...</p>
+                </div>
+            </div>
+        );
+    }
+    // -------------------------------------------------------------
+
+
+    const navLinks = <>
+        <li><NavLink to="/">Home</NavLink></li>
+        <li><NavLink to="/products">All Products</NavLink></li>
+        <li><NavLink to="/about">About Us</NavLink></li>
+        <li><NavLink to="/contact">Contact</NavLink></li>
     </>;
+
+    const authenticatedLinks = user ? (
+        <>
+            <li><NavLink to="/dashboard">Dashboard</NavLink></li>
+            <li>
+                <button
+                    onClick={handleLogout}
+                    className='btn btn-secondary w-[100px]'
+                >
+                    Logout
+                </button>
+            </li>
+        </>
+    ) : (
+        <>
+            <li><NavLink to='/login' className='btn btn-primary mr-3 w-[100px]'>Login</NavLink></li>
+            <li><NavLink to='/register' className='btn btn-secondary w-[100px]'>Register</NavLink></li>
+        </>
+    );
 
     return (
         <div className="navbar bg-base-100 shadow-sm ">
@@ -43,13 +85,12 @@ const Navbar = () => {
                         {/* Mobile Menu Items */}
                         <ul
                             tabIndex={0}
-                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
+                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
                         >
-                            {links}
+                            {navLinks}
+                            {authenticatedLinks}
 
-                            {/* Add theme toggle OUTSIDE the <li> */}
                             <div className="mt-2">
-                                {/* Dark Mode Toggle */}
                                 <label className="swap swap-rotate">
                                     <input
                                         type="checkbox"
@@ -65,17 +106,17 @@ const Navbar = () => {
                     </div>
 
                     {/* Logo */}
-                    <Logo></Logo>
+                    <Logo />
                 </div>
 
                 {/* RIGHT SIDE (Desktop Menu) */}
                 <div className="navbar-end hidden lg:flex items-center gap-4">
                     <ul className="menu menu-horizontal px-1 items-center">
-                        {links}
+                        {navLinks}
+                        {authenticatedLinks}
                     </ul>
 
-                    {/* Theme Toggle MUST BE OUTSIDE the <ul> */}
-                    {/* Dark Mode Toggle */}
+                    {/* Theme Toggle */}
                     <label className="swap swap-rotate">
                         <input
                             type="checkbox"
@@ -87,7 +128,6 @@ const Navbar = () => {
                         <FaMoon className="swap-on fill-current w-6 h-6" />
                     </label>
                 </div>
-
             </div>
         </div>
     );

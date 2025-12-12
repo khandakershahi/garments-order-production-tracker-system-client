@@ -112,3 +112,16 @@
   --depth: 0;
   --noise: 0;
 }
+
+/* Custom CSS to moderate the SweetAlert2 icon size */
+.swal2-icon-custom {
+  /* Adjust these values to find the perfect 'moderate' size */
+  width: 2em !important;
+  height: 2em !important;
+}
+
+/* Optional: Adjust the line around the success icon */
+.swal2-icon.swal2-success::after,
+.swal2-icon.swal2-success::before {
+  width: 0.5em !important;
+}

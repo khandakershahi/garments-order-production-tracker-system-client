@@ -1,9 +1,19 @@
-import React from 'react';
+import Lottie from "react-lottie";
+import loadingAnimation from "../../assets/json/loading.json";
+import React from "react";
 
 const Loading = () => {
     return (
-        <div>
-            
+        <div className="flex flex-col items-center justify-center gap-5">
+            <div className="max-w-sm relative">
+                <Lottie
+                    options={{
+                        animationData: loadingAnimation,
+                        autoplay: true,
+                        loop: true,
+                    }}
+                ></Lottie>
+            </div>
         </div>
     );
 };

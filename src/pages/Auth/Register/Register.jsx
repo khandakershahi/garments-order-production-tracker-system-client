@@ -16,24 +16,17 @@ const Register = () => {
     } = useForm();
 
     const location = useLocation();
-    // console.log("in register", location);
-
     const navigate = useNavigate();
 
     const { registerUser, updateUserProfile } = useAuth();
-
     const axiosSecure = useAxiosSecure();
 
     const handleRegistration = (data) => {
-        // console.log("after register", data.photo[0]);
         const profileImg = data.photo[0];
 
         registerUser(data.email, data.password)
             .then(() => {
-                // console.log(result.user);
-
-                //1. store the image in form data
-
+                // 1. store the image in form data
                 const formData = new FormData();
                 formData.append("image", profileImg);
 
@@ -47,13 +40,19 @@ const Register = () => {
                         email: data.email,
                         name: data.name,
                         photoURL: photoURL,
+                        // ADDED: Role from form input
+                        role: data.role,
+                        // ADDED: Default status as 'pending'
+                        status: "pending",
                     };
 
                     axiosSecure.post("/users", userInfo).then((res) => {
                         if (res.data.insertedId) {
                             console.log("user created in database");
+                            // You can add your success toast/sweet alert here
                         }
                     });
+
                     // update user profile user to firebase
                     const userProfile = {
                         displayName: data.name,
@@ -70,6 +69,7 @@ const Register = () => {
             })
             .catch((error) => {
                 console.log(error);
+                // You can add your error toast/sweet alert here
             });
     };
 
@@ -113,6 +113,21 @@ const Register = () => {
                         {errors.email?.type === "required" && (
                             <p className="text-red-500">Email is required</p>
                         )}
+
+                        {/* Role (ADDED)*/}
+                        <label className="label">Role</label>
+                        <select
+                            {...register("role", { required: true })}
+                            className="select select-bordered w-full"
+                        >
+                            <option value="">Select Role</option>
+                            <option value="buyer">Buyer</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                        {errors.role?.type === "required" && (
+                            <p className="text-red-500">Role is required</p>
+                        )}
+
                         {/* password*/}
                         <label className="label">Password</label>
                         <input
@@ -130,13 +145,12 @@ const Register = () => {
                         )}
                         {errors.password?.type === "minLength" && (
                             <p className="text-red-500">
-                                Password must be 6 charecter or more
+                                Password must be 6 characters or more
                             </p>
                         )}
                         {errors.password?.type === "pattern" && (
                             <p className="text-red-500">
-                                Your password needs at least one uppercase letter, <br /> one
-                                lowercase letter, one number, one special character.
+                                Password must include: one uppercase, one lowercase, one number, and one special character.
                             </p>
                         )}
 
