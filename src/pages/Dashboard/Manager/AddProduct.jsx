@@ -1,0 +1,329 @@
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import axios from "axios";
+
+// Mock data remains the same
+const PRODUCT_CATEGORIES = ["Shirt", "Pant", "Jacket", "Panjabi", "Sharee", "Three Piece", "Kurti", "Others"];
+const PAYMENT_OPTIONS = ["Cash on Delivery", "PayFast"];
+
+// ⭐ REMOVE THE generateProductId FUNCTION HERE! It is now on the server. ⭐
+
+const AddProduct = () => {
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm();
+
+    const axiosSecure = useAxiosSecure();
+    const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
+
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+
+    // Helper function to clean up preview URLs (memory management)
+    const cleanupImagePreviews = (urls) => {
+        urls.forEach(url => URL.revokeObjectURL(url));
+    };
+
+    // --- Image Preview Handler (same) ---
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        cleanupImagePreviews(imagePreviews);
+        const validFiles = files.filter(file => file.type.startsWith('image/'));
+
+        if (validFiles.length > 0) {
+            const urls = validFiles.map(file => URL.createObjectURL(file));
+            setImagePreviews(urls);
+        } else {
+            setImagePreviews([]);
+        }
+    };
+
+    // --- Core Upload Function (same) ---
+    const uploadImageToImgBB = async (imageFile) => {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        const response = await axios.post(image_API_URL, formData);
+        return response.data.data.url;
+    };
+
+
+    // --- Form Submission Handler (UPDATED) ---
+    const handleAddProduct = async (data) => {
+        const images = data.images;
+
+        if (images.length === 0) {
+            Swal.fire("Error", "Please select at least one product image.", "error");
+            return;
+        }
+
+        setIsUploading(true);
+
+        // 1. **Image Upload and URL Collection**
+        let imageUrls = [];
+        try {
+            const uploadPromises = Array.from(images).map(image => uploadImageToImgBB(image));
+            imageUrls = await Promise.all(uploadPromises);
+
+        } catch (imageError) {
+            console.error("Image Upload Failed:", imageError);
+            setIsUploading(false);
+            Swal.fire("Error", "Failed to upload product images to ImgBB. Check your API key or network.", "error");
+            return;
+        }
+
+        // 2. **Prepare Product Data (NO ID GENERATED HERE)**
+        // The productId will be generated and added by the server.
+        const productInfo = {
+            title: data.productName,
+            description: data.productDescription,
+            category: data.category,
+            price: parseFloat(data.price),
+            availableQuantity: parseInt(data.availableQuantity),
+            minOrderQuantity: parseInt(data.minOrderQuantity),
+            images: imageUrls,
+            videoLink: data.demoVideoLink || null,
+            paymentOption: data.paymentOption,
+            showOnHomePage: data.showOnHomePage,
+            createdAt: new Date(),
+        };
+
+        // 3. **Save Product to Database**
+        try {
+            // ⭐ EXPECT THE productId BACK IN THE RESPONSE DATA ⭐
+            const res = await axiosSecure.post("/products", productInfo);
+            const { insertedId, productId } = res.data; // Destructure the new productId
+
+            if (insertedId) {
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    // Use the productId returned by the server
+                    title: `${data.productName} (ID: ${productId}) has been successfully added!`,
+                    showConfirmButton: false,
+                    timer: 4000,
+                });
+
+                // Cleanup and navigation (placeholder since react-router-dom is excluded)
+                reset();
+                cleanupImagePreviews(imagePreviews);
+                setImagePreviews([]);
+                console.log("Product added. Navigating to manage products page...");
+
+            } else {
+                Swal.fire("Error", "Product creation failed on the server.", "error");
+            }
+        } catch (dbError) {
+            console.error("Database Submission Failed:", dbError.response?.data?.message || dbError.message);
+            Swal.fire("Error", "Failed to save product data. Check your network or API response.", "error");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    // --- Render JSX (same) ---
+    return (
+        <div className="bg-white rounded-4xl p-8">
+            <h2 className="text-4xl font-bold text-center mb-10 text-primary">
+                Add New Product (Manager Access)
+            </h2>
+
+            {/* Overlay Loader */}
+            {isUploading && (
+                <div className="fixed inset-0 bg-base-300 bg-opacity-70 z-50 flex items-center justify-center">
+                    <span className="loading loading-spinner loading-lg text-primary"></span>
+                    <p className="ml-4 text-xl font-semibold text-white">Uploading Images, please wait...</p>
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit(handleAddProduct)} className="p-4 text-black space-y-6">
+
+                {/* Product Name / Title */}
+                <fieldset className="fieldset">
+                    <label className="label text-lg font-semibold">Product Name / Title <span className="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        {...register("productName", { required: "Product Name is required" })}
+                        className="input input-bordered w-full"
+                        placeholder="e.g., Slim Fit Cotton Shirt"
+                    />
+                    {errors.productName && <p className="text-error text-sm mt-1">{errors.productName.message}</p>}
+                </fieldset>
+
+                {/* Product Description */}
+                <fieldset className="fieldset">
+                    <label className="label text-lg font-semibold">Product Description <span className="text-red-500">*</span></label>
+                    <textarea
+                        {...register("productDescription", { required: "Description is required" })}
+                        className="textarea textarea-bordered w-full h-32"
+                        placeholder="Provide detailed product specifications, materials, and sizing info."
+                    />
+                    {errors.productDescription && <p className="text-error text-sm mt-1">{errors.productDescription.message}</p>}
+                </fieldset>
+
+                {/* GRID: Category, Price, Quantity */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Category */}
+                    <fieldset className="fieldset">
+                        <label className="label text-lg font-semibold">Category <span className="text-red-500">*</span></label>
+                        <select
+                            {...register("category", { required: "Category is required" })}
+                            className="select select-bordered w-full"
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Select a Category</option>
+                            {PRODUCT_CATEGORIES.map((cat) => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                        {errors.category && <p className="text-error text-sm mt-1">{errors.category.message}</p>}
+                    </fieldset>
+
+                    {/* Price */}
+                    <fieldset className="fieldset">
+                        <label className="label text-lg font-semibold">Price (Taka) <span className="text-red-500">*</span></label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            {...register("price", {
+                                required: "Price is required",
+                                min: { value: 1, message: "Price must be positive" },
+                                valueAsNumber: true
+                            })}
+                            className="input input-bordered w-full"
+                            placeholder="e.g., 850.50"
+                        />
+                        {errors.price && <p className="text-error text-sm mt-1">{errors.price.message}</p>}
+                    </fieldset>
+
+                    {/* Available Quantity */}
+                    <fieldset className="fieldset">
+                        <label className="label text-lg font-semibold">Available Quantity <span className="text-red-500">*</span></label>
+                        <input
+                            type="number"
+                            {...register("availableQuantity", {
+                                required: "Quantity is required",
+                                min: { value: 1, message: "Must be at least 1" },
+                                valueAsNumber: true
+                            })}
+                            className="input input-bordered w-full"
+                            placeholder="e.g., 500"
+                        />
+                        {errors.availableQuantity && <p className="text-error text-sm mt-1">{errors.availableQuantity.message}</p>}
+                    </fieldset>
+                </div>
+
+                {/* GRID: MOQ, Demo Video, Payment Options */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Minimum Order Quantity (MOQ) */}
+                    <fieldset className="fieldset">
+                        <label className="label text-lg font-semibold">Minimum Order Quantity (MOQ) <span className="text-red-500">*</span></label>
+                        <input
+                            type="number"
+                            {...register("minOrderQuantity", {
+                                required: "MOQ is required",
+                                min: { value: 1, message: "MOQ must be at least 1" },
+                                valueAsNumber: true
+                            })}
+                            className="input input-bordered w-full"
+                            placeholder="e.g., 50"
+                        />
+                        {errors.minOrderQuantity && <p className="text-error text-sm mt-1">{errors.minOrderQuantity.message}</p>}
+                    </fieldset>
+
+                    {/* Demo Video Link */}
+                    <fieldset className="fieldset">
+                        <label className="label text-lg font-semibold">Demo Video Link (Optional)</label>
+                        <input
+                            type="url"
+                            {...register("demoVideoLink")}
+                            className="input input-bordered w-full"
+                            placeholder="e.g., https://youtube.com/..."
+                        />
+                    </fieldset>
+
+                    {/* Payment Options */}
+                    <fieldset className="fieldset">
+                        <label className="label text-lg font-semibold">Payment Option <span className="text-red-500">*</span></label>
+                        <select
+                            {...register("paymentOption", { required: "Payment option is required" })}
+                            className="select select-bordered w-full"
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Select Option</option>
+                            {PAYMENT_OPTIONS.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </select>
+                        {errors.paymentOption && <p className="text-error text-sm mt-1">{errors.paymentOption.message}</p>}
+                    </fieldset>
+                </div>
+
+
+                {/* Images Upload */}
+                <fieldset className="fieldset border p-4 rounded-lg border-primary/50">
+                    <label className="label text-lg font-semibold">Product Images Upload (Multiple) <span className="text-red-500">*</span></label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        {...register("images", { required: "At least one image is required" })}
+                        onChange={(e) => {
+                            register('images').onChange(e);
+                            handleImageChange(e);
+                        }}
+                        className="file-input file-input-bordered w-full"
+                    />
+                    {errors.images && <p className="text-error text-sm mt-1">{errors.images.message}</p>}
+
+                    {/* Image Preview */}
+                    {imagePreviews.length > 0 && (
+                        <div className="mt-4">
+                            <p className="col-span-full font-medium mb-2">Image Previews:</p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {imagePreviews.map((url, index) => (
+                                    <img
+                                        key={index}
+                                        src={url}
+                                        alt={`Product preview ${index + 1}`}
+                                        className="w-full h-24 object-cover rounded-md border border-gray-300 shadow-sm"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </fieldset>
+
+                {/* Show on Home Page Toggle */}
+                <fieldset className="flex items-center space-x-3 pt-4">
+                    <input
+                        type="checkbox"
+                        {...register("showOnHomePage")}
+                        className="checkbox checkbox-primary"
+                        id="showhome"
+                    />
+
+                    <label
+                        htmlFor="showhome"
+                        className="label cursor-pointer"
+                    >
+                        <span className="label-text text-lg font-medium text-gray-700">Show on Home Page "Our Products" section</span>
+                    </label>
+                </fieldset>
+
+                <input
+                    type="submit"
+                    value={isUploading ? "Adding Product..." : "Add Product"}
+                    className="btn btn-primary text-white w-fit mt-8 text-xl px-10"
+                    disabled={isUploading}
+                />
+            </form>
+        </div>
+    );
+};
+
+export default AddProduct;

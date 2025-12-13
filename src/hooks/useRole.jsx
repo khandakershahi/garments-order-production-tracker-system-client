@@ -1,20 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
 import useAuth from "./useAuth";
 import useAxiosSecure from "./useAxiosSecure";
 
 const useRole = () => {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const axiosSecure = useAxiosSecure();
-    const { isLoading: roleLoading, data: role = "user" } = useQuery({
+    const isUserAvailable = user && user.email;
+
+    const { isLoading: roleLoading, data: role = "buyer" } = useQuery({ // <<< CHANGED DEFAULT TO "buyer"
         queryKey: ["user-role", user?.email],
         queryFn: async () => {
-            const res = await axiosSecure.get(`/users/${user.email}/role`);
-            // console.log("in the useRole", res.data);
+            if (!user.email) return "buyer";
 
-            return res.data?.role || "user";
+            const res = await axiosSecure.get(`/users/${user.email}/role`);
+            // The API must return an object with a 'role' property (e.g., { role: 'manager' })
+            return res.data?.role || "buyer"; // <<< CHANGED DEFAULT TO "buyer"
         },
+        enabled: !authLoading && !!isUserAvailable,
     });
+
     return { role, roleLoading };
 };
 

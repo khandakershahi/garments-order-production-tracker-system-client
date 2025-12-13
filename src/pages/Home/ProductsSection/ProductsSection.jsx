@@ -2,55 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaEye, FaDollarSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
+// ⭐ New Imports for dynamic data ⭐
+import { useQuery } from '@tanstack/react-query';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import Loading from '../../../components/Loading/Loading';
 
 // =======================================================
-// 1. STATIC DATA (To be replaced by TanStack Query later)
+// 1. STATIC DATA REMOVED - The fetching logic will replace this
 // =======================================================
-// NOTE: Use placeholder image URLs until you integrate your actual assets.
-const staticProducts = [
-    {
-        _id: '66a1a8e6f1a8b4c5d6e7f8a1',
-        name: "Men's Classic Panjabi",
-        shortDesc: "Traditional wear in fine cotton with embroidered collar.",
-        price: 2800,
-        imageUrl: "https://i.ibb.co/L5gqX1J/mens-classic-panjabi.jpg", // Placeholder Image URL
-    },
-    {
-        _id: '66a1a8e6f1a8b4c5d6e7f8a2',
-        name: "Women's Royal Sharee",
-        shortDesc: "Elegant silk sharee with intricate work, perfect for occasions.",
-        price: 7500,
-        imageUrl: "https://i.ibb.co/30Z1H2b/womens-royal-sharee.jpg",
-    },
-    {
-        _id: '66a1a8e6f1a8b4c5d6e7f8a3',
-        name: "Three-Piece Cotton Set",
-        shortDesc: "Comfortable and stylish three-piece set for daily wear.",
-        price: 1850,
-        imageUrl: "https://i.ibb.co/3sD12f1/three-piece-cotton-set.jpg",
-    },
-    {
-        _id: '66a1a8e6f1a8b4c5d6e7f8a4',
-        name: "Premium Denim Jacket",
-        shortDesc: "Heavy-duty denim with contrast stitching and inner lining.",
-        price: 4200,
-        imageUrl: "https://i.ibb.co/Rz0wQGg/premium-denim-jacket.jpg",
-    },
-    {
-        _id: '66a1a8e6f1a8b4c5d6e7f8a5',
-        name: "Kids' Festive Outfit",
-        shortDesc: "Brightly colored two-piece set for children's festivals.",
-        price: 1500,
-        imageUrl: "https://i.ibb.co/g4X0yD9/kids-festive-outfit.jpg",
-    },
-    {
-        _id: '66a1a8e6f1a8b4c5d6e7f8a6',
-        name: "Leather Shoulder Bag",
-        shortDesc: "Handcrafted leather bag with durable hardware and classic finish.",
-        price: 3500,
-        imageUrl: "https://i.ibb.co/g4X0yD9/leather-shoulder-bag.jpg",
-    },
-];
+// The large staticProducts array is removed.
 
 // =======================================================
 // 2. FRAMER MOTION VARIANTS (For smooth loading)
@@ -64,22 +24,45 @@ const cardVariants = {
 // 3. COMPONENT
 // =======================================================
 const ProductsSection = () => {
-    // useNavigate hook is used for programmatic navigation
     const navigate = useNavigate();
+    const axiosSecure = useAxiosSecure(); // Initialize custom hook
 
-    // The handler function for navigation
+    // ⭐ FETCH LOGIC USING TANSTACK QUERY ⭐
+    const {
+        data: limitedProducts = [], // Rename data to limitedProducts and default to empty array
+        isLoading,
+    } = useQuery({
+        queryKey: ["featured-products"],
+        queryFn: async () => {
+            // Assumes your backend /products route supports query parameters 
+            // to filter by showOnHomePage (featured: true) and limit results.
+            const res = await axiosSecure.get('/products', {
+                params: {
+                    featured: true, // Filters products where showOnHomePage is true
+                    limit: 6        // Ensures we only fetch the first 6
+                }
+            });
+            return res.data;
+        },
+    });
+
     const handleViewDetails = (productId) => {
-        // Redirects to the product details page (e.g., /products/66a1...)
-        // This route should be protected by your application's private route logic.
         navigate(`/product/${productId}`);
     };
 
-    // Replace this static data with a TanStack Query fetch later:
-    // const { data: products, isLoading } = useQuery({ ... });
-    const products = staticProducts;
+    // ⭐ Handle Loading State ⭐
+    if (isLoading) {
+        return <Loading />;
+    }
 
-    // In a real scenario, you'd limit the MongoDB result, but here we slice the static data
-    const limitedProducts = products.slice(0, 6);
+    // ⭐ Handle No Products Found ⭐
+    if (limitedProducts.length === 0) {
+        return (
+            <section className="py-20 bg-base-100 text-center">
+                <p className="text-xl text-gray-500">No featured products available right now.</p>
+            </section>
+        );
+    }
 
     return (
         <section className="py-20 bg-base-100">
@@ -108,41 +91,41 @@ const ProductsSection = () => {
                     viewport={{ once: true, amount: 0.1 }}
                     variants={{ show: { transition: { staggerChildren: 0.1 } } }}
                 >
+                    {/* ⭐ MAPPING FETCHED DATA ⭐ */}
                     {limitedProducts.map((product) => (
                         <motion.div
                             key={product._id}
                             variants={cardVariants}
-                            // DaisyUI Card styling: bg-base-200 provides a slight lift
                             className="card w-full bg-base-200 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
                         >
                             <figure className="h-64 overflow-hidden">
-                                {/* Image */}
                                 <img
-                                    src={product.imageUrl}
-                                    alt={product.name}
+                                    // Use the first image URL from the array, with a fallback
+                                    src={product.images?.[0] || 'placeholder-image-url'}
+                                    alt={product.title}
                                     className="object-cover w-full h-full"
                                 />
                             </figure>
 
                             <div className="card-body p-6">
-                                {/* Product Name */}
+                                {/* Use product.title for the name */}
                                 <h3 className="card-title text-2xl font-bold text-base-content mb-2">
-                                    {product.name}
+                                    {product.title}
                                 </h3>
 
-                                {/* Short Description */}
+                                {/* Use product.description for the short description */}
                                 <p className="text-base text-base-content/80 mb-3 line-clamp-2">
-                                    {product.shortDesc}
+                                    {product.description}
                                 </p>
 
                                 {/* Price */}
                                 <div className="flex items-center justify-between mt-auto">
                                     <span className="flex items-center text-3xl font-extrabold text-primary">
                                         <FaDollarSign className="w-5 h-5 mr-1" />
-                                        {product.price.toLocaleString()}
+                                        {product.price?.toLocaleString()}
                                     </span>
 
-                                    {/* View Details Button */}
+                                    {/* View Details Button, using product._id */}
                                     <button
                                         onClick={() => handleViewDetails(product._id)}
                                         className="btn btn-primary btn-md shadow-lg"

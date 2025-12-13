@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { FaMoon, FaSun, FaSpinner } from 'react-icons/fa'; // Added FaSpinner
+import { FaMoon, FaSun, FaSpinner } from 'react-icons/fa';
 import Logo from '../../Logo/Logo';
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router'; // Using react-router-dom for NavLink
 import useAuth from '../../../hooks/useAuth';
 
 const Navbar = () => {
     const [isdark, setIsdark] = useState(JSON.parse(localStorage.getItem('isdark') || 'false'));
-
-    // DESTRUCTURED NEW 'loading' STATE
     const { user, logOut, loading } = useAuth();
+    const navigate = useNavigate(); // Initialize useNavigate hook
 
     useEffect(() => {
         localStorage.setItem('isdark', JSON.stringify(isdark));
@@ -17,7 +16,10 @@ const Navbar = () => {
 
     const handleLogout = () => {
         logOut()
-            .then(() => console.log('User logged out'))
+            .then(() => {
+                console.log('User logged out');
+                navigate('/'); // <<< ADDED: Navigate to Home Page
+            })
             .catch(error => console.error('Logout error:', error));
     };
 
@@ -42,29 +44,64 @@ const Navbar = () => {
 
     const navLinks = <>
         <li><NavLink to="/">Home</NavLink></li>
-        <li><NavLink to="/products">All Products</NavLink></li>
+        <li><NavLink to="/all-products">All Products</NavLink></li>
         <li><NavLink to="/about">About Us</NavLink></li>
         <li><NavLink to="/contact">Contact</NavLink></li>
     </>;
 
-    const authenticatedLinks = user ? (
-        <>
-            <li><NavLink to="/dashboard">Dashboard</NavLink></li>
-            <li>
-                <button
-                    onClick={handleLogout}
-                    className='btn btn-secondary w-[100px]'
-                >
-                    Logout
-                </button>
-            </li>
-        </>
-    ) : (
+    // -------------------------------------------------------------
+    // REMOVED authenticatedLinks TO IMPLEMENT DROPDOWN IN THE RETURN
+    // -------------------------------------------------------------
+
+    const unauthenticatedButtons = (
         <>
             <li><NavLink to='/login' className='btn btn-primary mr-3 w-[100px]'>Login</NavLink></li>
             <li><NavLink to='/register' className='btn btn-secondary w-[100px]'>Register</NavLink></li>
         </>
     );
+
+    const profileDropdown = (
+        <div className="dropdown dropdown-end ml-4">
+            {/* Profile Image/Avatar Button */}
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                <div className="w-10 rounded-full">
+                    {/* Use user's photoURL or a fallback */}
+                    <img
+                        alt={user?.displayName || "User Profile"}
+                        src={user?.photoURL || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                    />
+                </div>
+            </div>
+
+            {/* Dropdown Menu Items */}
+            <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+            >
+                {/* 1. Profile Link */}
+                <li>
+                    <NavLink to="/dashboard/profile" className="justify-between">
+                        Profile
+                        <span className="badge">View</span>
+                    </NavLink>
+                </li>
+
+                {/* 2. Dashboard Link */}
+                <li><NavLink to="/dashboard">Dashboard</NavLink></li>
+
+                {/* 3. Logout Button */}
+                <li>
+                    <a onClick={handleLogout} className='text-red-500 hover:bg-red-50'>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    );
+
+    // -------------------------------------------------------------
+    // RENDER SECTION
+    // -------------------------------------------------------------
 
     return (
         <div className="navbar bg-base-100 shadow-sm ">
@@ -72,7 +109,7 @@ const Navbar = () => {
 
                 {/* LEFT SIDE (Logo + Mobile Menu) */}
                 <div className="navbar-start">
-                    {/* Mobile Dropdown */}
+                    {/* Mobile Dropdown (Hamburger Menu) */}
                     <div className="dropdown">
                         <label tabIndex={0} className="btn btn-ghost lg:hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"
@@ -88,9 +125,19 @@ const Navbar = () => {
                             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
                         >
                             {navLinks}
-                            {authenticatedLinks}
+                            {/* Mobile menu logic remains the same for simplicity */}
+                            {user ? (
+                                <>
+                                    <li><NavLink to="/dashboard">Dashboard</NavLink></li>
+                                    <li><NavLink to="/dashboard/profile">Profile</NavLink></li>
+                                    <li><a onClick={handleLogout}>Logout</a></li>
+                                </>
+                            ) : (
+                                unauthenticatedButtons
+                            )}
 
                             <div className="mt-2">
+                                {/* Mobile Theme Toggle */}
                                 <label className="swap swap-rotate">
                                     <input
                                         type="checkbox"
@@ -109,15 +156,23 @@ const Navbar = () => {
                     <Logo />
                 </div>
 
-                {/* RIGHT SIDE (Desktop Menu) */}
+                {/* RIGHT SIDE (Desktop Menu & Auth/Profile) */}
                 <div className="navbar-end hidden lg:flex items-center gap-4">
                     <ul className="menu menu-horizontal px-1 items-center">
                         {navLinks}
-                        {authenticatedLinks}
+                        {/* Only show login/register buttons if not authenticated */}
+                        {!user && unauthenticatedButtons}
                     </ul>
 
+                    {/* Authentication/Profile Section */}
+                    {user ? (
+                        <>
+                            {profileDropdown}
+                        </>
+                    ) : null}
+
                     {/* Theme Toggle */}
-                    <label className="swap swap-rotate">
+                    <label className="swap swap-rotate ml-4">
                         <input
                             type="checkbox"
                             className="theme-controller"
