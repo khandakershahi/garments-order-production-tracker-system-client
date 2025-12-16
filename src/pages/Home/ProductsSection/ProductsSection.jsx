@@ -1,19 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaEye, FaDollarSign } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
-// ⭐ New Imports for dynamic data ⭐
+import { NavLink, useNavigate } from 'react-router'; // Ensure correct import
 import { useQuery } from '@tanstack/react-query';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import Loading from '../../../components/Loading/Loading';
 
 // =======================================================
-// 1. STATIC DATA REMOVED - The fetching logic will replace this
-// =======================================================
-// The large staticProducts array is removed.
-
-// =======================================================
-// 2. FRAMER MOTION VARIANTS (For smooth loading)
+// 1. FRAMER MOTION VARIANTS
 // =======================================================
 const cardVariants = {
     hidden: { opacity: 0, y: 50, scale: 0.95 },
@@ -21,30 +15,35 @@ const cardVariants = {
 };
 
 // =======================================================
-// 3. COMPONENT
+// 2. COMPONENT
 // =======================================================
 const ProductsSection = () => {
     const navigate = useNavigate();
-    const axiosSecure = useAxiosSecure(); // Initialize custom hook
+    const axiosSecure = useAxiosSecure();
 
-    // ⭐ FETCH LOGIC USING TANSTACK QUERY ⭐
+    // ⭐ CORRECTED FETCH LOGIC USING TANSTACK QUERY ⭐
     const {
-        data: limitedProducts = [], // Rename data to limitedProducts and default to empty array
+        data: responseData, // <-- Get the full response object
         isLoading,
     } = useQuery({
         queryKey: ["featured-products"],
         queryFn: async () => {
-            // Assumes your backend /products route supports query parameters 
-            // to filter by showOnHomePage (featured: true) and limit results.
             const res = await axiosSecure.get('/products', {
                 params: {
-                    featured: true, // Filters products where showOnHomePage is true
-                    limit: 6        // Ensures we only fetch the first 6
+                    // ⭐ NEW PARAMETER: MUST MATCH NEW BACKEND LOGIC ⭐
+                    // The backend needs a flag to know this is a non-paginated, featured request.
+                    // Since your new backend doesn't handle 'showOnHomePage' query, 
+                    // we will rely on limit and assume the first 6 are "featured"
+                    limit: 6
                 }
             });
             return res.data;
         },
     });
+
+    // ⭐ SAFELY EXTRACT PRODUCTS FROM THE RESPONSE OBJECT ⭐
+    // If responseData is { products: [...], ... }, we get the array. Otherwise, it defaults to [].
+    const limitedProducts = responseData?.products || [];
 
     const handleViewDetails = (productId) => {
         navigate(`/product/${productId}`);
@@ -91,41 +90,36 @@ const ProductsSection = () => {
                     viewport={{ once: true, amount: 0.1 }}
                     variants={{ show: { transition: { staggerChildren: 0.1 } } }}
                 >
-                    {/* ⭐ MAPPING FETCHED DATA ⭐ */}
+                    {/* MAPPING FETCHED DATA */}
                     {limitedProducts.map((product) => (
                         <motion.div
                             key={product._id}
                             variants={cardVariants}
                             className="card w-full bg-base-200 shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
                         >
-                            <figure className="h-64 overflow-hidden">
+                            <figure className="h-[500px] w-auto aspect-auto overflow-hidden">
                                 <img
-                                    // Use the first image URL from the array, with a fallback
-                                    src={product.images?.[0] || 'placeholder-image-url'}
+                                    src={product.images?.[2] || 'placeholder-image-url'}
                                     alt={product.title}
-                                    className="object-cover w-full h-full"
+                                    className="object-cover w-full h-full aspect-square"
                                 />
                             </figure>
 
                             <div className="card-body p-6">
-                                {/* Use product.title for the name */}
                                 <h3 className="card-title text-2xl font-bold text-base-content mb-2">
                                     {product.title}
                                 </h3>
 
-                                {/* Use product.description for the short description */}
                                 <p className="text-base text-base-content/80 mb-3 line-clamp-2">
                                     {product.description}
                                 </p>
 
-                                {/* Price */}
                                 <div className="flex items-center justify-between mt-auto">
                                     <span className="flex items-center text-3xl font-extrabold text-primary">
                                         <FaDollarSign className="w-5 h-5 mr-1" />
                                         {product.price?.toLocaleString()}
                                     </span>
 
-                                    {/* View Details Button, using product._id */}
                                     <button
                                         onClick={() => handleViewDetails(product._id)}
                                         className="btn btn-primary btn-md shadow-lg"
@@ -139,9 +133,9 @@ const ProductsSection = () => {
                 </motion.div>
 
                 <div className="text-center mt-12">
-                    <button className="btn btn-neutral btn-wide shadow-md">
+                    <NavLink to="/all-products" className="btn btn-neutral btn-wide shadow-md">
                         Browse All Garments
-                    </button>
+                    </NavLink>
                 </div>
             </div>
         </section>

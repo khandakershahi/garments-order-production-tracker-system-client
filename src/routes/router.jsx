@@ -26,6 +26,7 @@ import ApprovedOrders from "../pages/Dashboard/Manager/ApprovedOrders";
 
 // Global Imports
 import UserProfile from "../pages/Dashboard/UserProfile/UserProfile";
+import MyOrders from "../pages/Dashboard/User/MyOrders";
 
 // Route Guards
 import AdminRoute from "./AdminRoute";
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
       {
         path: 'profile', // SINGLE, GLOBAL PROFILE ROUTE
         Component: UserProfile, // NO special role guard needed if wrapped by PrivateRoute
+      },
+      {
+        path: 'my-orders',
+        Component: MyOrders,
       },
 
       // ------------------------------------

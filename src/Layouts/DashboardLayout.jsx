@@ -115,6 +115,24 @@ const DashboardLayout = () => {
                             </>
                         )}
 
+                        {/* -------------------- BUYER / USER MENU -------------------- */}
+                        {role === 'buyer' && (
+                            <>
+                                <li>
+                                    <NavLink to='/dashboard/my-orders' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Orders">
+                                        <FaListAlt />
+                                        <span className="is-drawer-close:hidden">My Orders</span>
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink to='/dashboard/track-order' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Track Order">
+                                        <GoPackageDependents />
+                                        <span className="is-drawer-close:hidden">Track Order</span>
+                                    </NavLink>
+                                </li>
+                            </>
+                        )}
+
                         {/* -------------------- GLOBAL PROFILE LINK -------------------- */}
                         <li>
                             <NavLink to='/dashboard/profile' className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="My Profile">

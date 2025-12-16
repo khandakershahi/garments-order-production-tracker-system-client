@@ -67,9 +67,16 @@ const Navbar = () => {
                 <div className="w-10 rounded-full">
                     {/* Use user's photoURL or a fallback */}
                     <img
-                        alt={user?.displayName || "User Profile"}
-                        src={user?.photoURL || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'}
+                        className="w-10 rounded-full"
+                        alt={user?.displayName || "User"}
+                        src={
+                            user?.photoURL ||
+                            user?.providerData?.[0]?.photoURL ||
+                            "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                        }
+                        referrerPolicy="no-referrer"
                     />
+
                 </div>
             </div>
 

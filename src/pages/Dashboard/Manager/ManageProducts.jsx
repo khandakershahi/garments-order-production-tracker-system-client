@@ -6,8 +6,7 @@ import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import useAuth from '../../../hooks/useAuth';
 import Loading from '../../../components/Loading/Loading';
 import EditProductModal from './EditProductModal';
-import { Link } from 'react-router';
-
+import { Link } from 'react-router'; // ⭐ Ensure correct import for Link
 
 const ManageProducts = () => {
     const { user } = useAuth();
@@ -19,7 +18,7 @@ const ManageProducts = () => {
 
     // 1. Fetch Manager's Products
     const {
-        data: products = [],
+        data: responseData, // ⭐ CHANGED: Get the full response object
         isLoading,
         refetch
     } = useQuery({
@@ -30,23 +29,34 @@ const ManageProducts = () => {
                 params: {
                     managerEmail: user.email,
                     searchText: searchText,
+                    // Optionally, you might want a high limit here since this is a management view
+                    limit: 1000
                 }
             });
-            return res.data;
+            return res.data; // Returns { products: [...], totalCount: 0, ... }
         },
     });
+
+    // ⭐ NEW LINE: Safely extract the products array ⭐
+    const products = responseData?.products || [];
+    // const totalCount = responseData?.totalCount || 0; // Optional: for display
 
     // --- Action Handlers ---
 
     // Handle Search Submission
     const handleSearch = (e) => {
         e.preventDefault();
-        const input = e.target.search.value;
+        const input = e.target.search.value.trim(); // Trim whitespace
         setSearchText(input);
     };
 
+    // ... (handleToggleHomePage, handleDelete, handleEdit, handleEditSuccess functions remain the same) ...
+    // ... (For brevity, keeping action handlers as is, assuming they are correct) ...
+
+
     // Handle Toggling Home Page Visibility
     const handleToggleHomePage = async (product) => {
+        // ... (implementation remains the same) ...
         const newStatus = !product.showOnHomePage;
         try {
             await axiosSecure.patch(`/products/${product._id}`, { showOnHomePage: newStatus });
@@ -57,7 +67,7 @@ const ManageProducts = () => {
                 timer: 2000,
                 showConfirmButton: false
             });
-            refetch(); // Refresh list to reflect changes
+            refetch();
         } catch (error) {
             Swal.fire('Error', 'Failed to update feature status.', 'error');
         }
@@ -65,6 +75,7 @@ const ManageProducts = () => {
 
     // Handle Deleting a Product
     const handleDelete = (product) => {
+        // ... (implementation remains the same) ...
         Swal.fire({
             title: `Are you sure you want to delete "${product.title}"?`,
             text: "You won't be able to revert this!",
@@ -83,7 +94,7 @@ const ManageProducts = () => {
                             'Your product has been deleted.',
                             'success'
                         );
-                        refetch(); // Refresh the product list
+                        refetch();
                     } else {
                         Swal.fire('Error', 'Could not delete product.', 'error');
                     }
@@ -95,30 +106,28 @@ const ManageProducts = () => {
     };
 
 
-    // UPDATED: Handle Edit - Fetches data and opens modal
+    // Handle Edit - Fetches data and opens modal
     const handleEdit = async (product) => {
-        // Set modal open immediately to show loading state inside the modal
+        // ... (implementation remains the same) ...
         setIsModalOpen(true);
-        setProductToEdit(null); // Clear previous product data while fetching
+        setProductToEdit(null);
 
         try {
-            // Fetch the full, current product data
             const res = await axiosSecure.get(`/products/${product._id}`);
-
-            // Set the data to open the modal with the pre-filled form
             setProductToEdit(res.data);
         } catch (error) {
             console.error("Failed to fetch product for editing:", error);
-            setIsModalOpen(false); // Close modal if fetch fails
+            setIsModalOpen(false);
             Swal.fire('Error', 'Failed to load product details for editing.', 'error');
         }
     };
 
     // Helper to close modal and refresh data after successful edit
     const handleEditSuccess = () => {
+        // ... (implementation remains the same) ...
         setIsModalOpen(false);
         setProductToEdit(null);
-        refetch(); // Refresh the list to show the updated product details
+        refetch();
     };
 
 
@@ -150,8 +159,6 @@ const ManageProducts = () => {
 
                 {/* Assuming you have a way to navigate to Add Product page */}
                 <Link to='/dashboard/add-product'
-                    // This button should link to your AddProduct route
-                    // onClick={() => console.log("Navigate to Add Product Page")}
                     className="btn btn-secondary text-white"
                 >
                     <FaPlus /> Add New Product
@@ -187,9 +194,9 @@ const ManageProducts = () => {
                                     {/* ⭐ Product Data Columns ⭐ */}
                                     <td>
                                         <div className="avatar">
-                                            <div className="mask mask-squircle w-12 h-12">
+                                            <div className="mask mask-squircle w-12 h-12 aspect-auto">
                                                 {/* Use the first image for the thumbnail */}
-                                                <img src={product.images?.[0] || 'placeholder-image-url'} alt={`Image of ${product.title}`} />
+                                                <img src={product.images?.[2] || 'placeholder-image-url'} alt={`Image of ${product.title}`} />
                                             </div>
                                         </div>
                                     </td>

@@ -44,9 +44,21 @@ const AuthProvider = ({ children }) => {
 
     // observe user state
     useEffect(() => {
-        const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoading(false);
+        const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            try {
+                if (currentUser) {
+                    const token = await currentUser.getIdToken();
+                    // Attach a short-lived accessToken for axios/interceptors
+                    setUser({ ...currentUser, accessToken: token });
+                } else {
+                    setUser(null);
+                }
+            } catch (err) {
+                console.error('Failed to get ID token', err);
+                setUser(currentUser);
+            } finally {
+                setLoading(false);
+            }
             console.log(currentUser);
         });
         return () => {
@@ -64,7 +76,7 @@ const AuthProvider = ({ children }) => {
         updateUserProfile,
     };
 
-    return <AuthContext value={authInfo}>{children}</AuthContext>;
+    return <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>;
 };
 
 export default AuthProvider;
