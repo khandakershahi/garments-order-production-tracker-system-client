@@ -25,14 +25,14 @@ const PaymentSuccess = () => {
   }, [sessionId, axiosSecure]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
-        <h2 className="text-4xl text-green-600 mb-4">Payment Successful</h2>
-        <p>Your transactionId: {paymentInfo?.transactionId}</p>
-        <p>Your Order ID: {paymentInfo?.orderId}</p>
+    <div className="min-h-screen flex items-center justify-center bg-base-100">
+      <div className="bg-base-200 p-8 rounded-lg shadow-md max-w-md w-full">
+        <h2 className="text-4xl text-success mb-4">Payment Successful</h2>
+        <p className="text-base-content mb-2">Your transactionId: {paymentInfo?.transactionId}</p>
+        <p className="text-base-content mb-4">Your Order ID: {paymentInfo?.orderId}</p>
         <button
           onClick={() => window.location.href = '/dashboard/my-orders'}
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="btn btn-primary mt-4"
         >
           View My Orders
         </button>
