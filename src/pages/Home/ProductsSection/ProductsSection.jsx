@@ -23,26 +23,18 @@ const ProductsSection = () => {
 
     // ⭐ CORRECTED FETCH LOGIC USING TANSTACK QUERY ⭐
     const {
-        data: responseData, // <-- Get the full response object
+        data: responseData,
         isLoading,
     } = useQuery({
         queryKey: ["featured-products"],
         queryFn: async () => {
-            const res = await axiosSecure.get('/products', {
-                params: {
-                    // ⭐ NEW PARAMETER: MUST MATCH NEW BACKEND LOGIC ⭐
-                    // The backend needs a flag to know this is a non-paginated, featured request.
-                    // Since your new backend doesn't handle 'showOnHomePage' query, 
-                    // we will rely on limit and assume the first 6 are "featured"
-                    limit: 6
-                }
-            });
+            const res = await axiosSecure.get('/products?limit=6');
             return res.data;
         },
     });
 
     // ⭐ SAFELY EXTRACT PRODUCTS FROM THE RESPONSE OBJECT ⭐
-    // If responseData is { products: [...], ... }, we get the array. Otherwise, it defaults to [].
+    // Backend returns { products: [...] }
     const limitedProducts = responseData?.products || [];
 
     const handleViewDetails = (productId) => {

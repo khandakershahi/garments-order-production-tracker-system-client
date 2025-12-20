@@ -15,64 +15,42 @@ import BannerImg3 from '../../../assets/Womens-Three-Piece-Set.png';
 // 2. HERO COMPONENT
 // =======================================================
 const Hero = () => {
-    const axiosSecure = useAxiosSecure();
     const [page, setPage] = useState(0);
     const [direction, setDirection] = useState(0);
 
-    // Fetch products for hero slider
-    const { data: heroProducts = [], isLoading } = useQuery({
-        queryKey: ['hero-slider-products'],
-        queryFn: async () => {
-            const res = await axiosSecure.get('/products/hero-slider');
-            console.log('Hero slider products from API:', res.data);
-            return res.data || [];
+    // Static hero slides - using fallback data
+    const heroSlides = [
+        {
+            id: 1,
+            title: "Seamless Order Tracking",
+            subtitle: "Monitor every step from cutting to delivery.",
+            image: BannerImg1,
+            ctaText: "View All Products",
+            ctaLink: "/all-products",
+            bgColor: "bg-info",
+            textColor: "text-info-content"
         },
-    });
-
-    // Create hero slides from products or use fallback
-    const heroSlides = heroProducts.length > 0 
-        ? heroProducts.map((product, index) => ({
-            id: product._id,
-            title: product.title,
-            subtitle: `Starting from $${product.price}`,
-            image: product.featureImage,
-            ctaText: "View Product",
-            ctaLink: `/product/${product._id}`,
-            bgColor: ["bg-info", "bg-accent", "bg-secondary"][index % 3],
-            textColor: ["text-info-content", "text-accent-content", "text-secondary-content"][index % 3]
-        }))
-        : [
-            {
-                id: 1,
-                title: "Seamless Order Tracking",
-                subtitle: "Monitor every step from cutting to delivery.",
-                image: BannerImg1,
-                ctaText: "View All Products",
-                ctaLink: "/all-products",
-                bgColor: "bg-info",
-                textColor: "text-info-content"
-            },
-            {
-                id: 2,
-                title: "Quality Production Management",
-                subtitle: "Manager tools for swift approval and tracking.",
-                image: BannerImg2,
-                ctaText: "Book a Product",
-                ctaLink: "/register",
-                bgColor: "bg-accent",
-                textColor: "text-accent-content"
-            },
-            {
-                id: 3,
-                title: "Unique Garment Solutions",
-                subtitle: "Designed for small to medium-sized factories.",
-                image: BannerImg3,
-                ctaText: "Learn More",
-                ctaLink: "/about",
-                bgColor: "bg-secondary",
-                textColor: "text-secondary-content"
-            },
-        ];
+        {
+            id: 2,
+            title: "Quality Production Management",
+            subtitle: "Manager tools for swift approval and tracking.",
+            image: BannerImg2,
+            ctaText: "Book a Product",
+            ctaLink: "/register",
+            bgColor: "bg-accent",
+            textColor: "text-accent-content"
+        },
+        {
+            id: 3,
+            title: "Unique Garment Solutions",
+            subtitle: "Designed for small to medium-sized factories.",
+            image: BannerImg3,
+            ctaText: "Learn More",
+            ctaLink: "/about",
+            bgColor: "bg-secondary",
+            textColor: "text-secondary-content"
+        },
+    ];
 
     const slideVariants = {
         initial: (direction) => {

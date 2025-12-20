@@ -32,22 +32,33 @@ const carouselVariants = {
 // 4. COMPONENT (Using DaisyUI Classes)
 // =======================================================
 const Feedback = () => {
-    const axiosSecure = useAxiosSecure();
-    
-    // Fetch feedbacks from database
-    const { data: reviews = [] } = useQuery({
-        queryKey: ['feedbacks'],
-        queryFn: async () => {
-            const res = await axiosSecure.get('/feedbacks?limit=6');
-            console.log('Feedbacks from API:', res.data);
-            return res.data || [];
+    // Static feedback data - no API call
+    const reviews = [
+        {
+            id: 1,
+            name: "Sarah Johnson",
+            role: "Factory Manager",
+            comment: "This system has streamlined our entire production process. Order tracking is seamless and efficient.",
+            rating: 5
         },
-    });
+        {
+            id: 2,
+            name: "Michael Chen",
+            role: "Production Supervisor",
+            comment: "Easy to use and very reliable. Our team adapted to it quickly and productivity has increased.",
+            rating: 5
+        },
+        {
+            id: 3,
+            name: "Emily Rodriguez",
+            role: "Quality Control Lead",
+            comment: "The real-time updates and tracking features are exactly what we needed. Highly recommend!",
+            rating: 5
+        },
+    ];
 
     const [[page, direction], setPage] = useState([0, 0]);
     const reviewIndex = reviews.length > 0 ? page % reviews.length : 0;
-
-    console.log('Current page:', page, 'reviewIndex:', reviewIndex, 'Current review:', reviews[reviewIndex]);
 
     const paginate = (newDirection) => {
         setPage([page + newDirection, newDirection]);
