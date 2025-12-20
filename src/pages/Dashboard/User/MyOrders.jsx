@@ -99,13 +99,15 @@ const MyOrders = () => {
                                     <td>
                                         <Link
                                             to={`/dashboard/track-order/${order._id}`}
-                                            className="text-blue-600 hover:text-blue-800 underline"
+                                            className="link link-primary"
                                         >
-                                            {order.trackingId || 'N/A'}
+                                            {String(order._id).slice(-8)}
                                         </Link>
                                     </td>
                                     <td>
-                                        {order.deliveryStatus || 'order_placed'}
+                                        <span className="badge badge-info badge-sm">
+                                            {order.deliveryStatus ? order.deliveryStatus.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Order Placed'}
+                                        </span>
                                     </td>
                                     <td>
                                         <button
