@@ -32,30 +32,16 @@ const carouselVariants = {
 // 4. COMPONENT (Using DaisyUI Classes)
 // =======================================================
 const Feedback = () => {
-    // Static feedback data - no API call
-    const reviews = [
-        {
-            id: 1,
-            name: "Sarah Johnson",
-            role: "Factory Manager",
-            comment: "This system has streamlined our entire production process. Order tracking is seamless and efficient.",
-            rating: 5
+    const axiosSecure = useAxiosSecure();
+
+    // Fetch feedback from API
+    const { data: reviews = [], isLoading } = useQuery({
+        queryKey: ['feedbacks-homepage'],
+        queryFn: async () => {
+            const res = await axiosSecure.get('/feedbacks?limit=6');
+            return res.data || [];
         },
-        {
-            id: 2,
-            name: "Michael Chen",
-            role: "Production Supervisor",
-            comment: "Easy to use and very reliable. Our team adapted to it quickly and productivity has increased.",
-            rating: 5
-        },
-        {
-            id: 3,
-            name: "Emily Rodriguez",
-            role: "Quality Control Lead",
-            comment: "The real-time updates and tracking features are exactly what we needed. Highly recommend!",
-            rating: 5
-        },
-    ];
+    });
 
     const [[page, direction], setPage] = useState([0, 0]);
     const reviewIndex = reviews.length > 0 ? page % reviews.length : 0;
@@ -73,6 +59,18 @@ const Feedback = () => {
 
         return () => clearInterval(timer);
     }, [page, reviews.length]);
+
+    if (isLoading) {
+        return (
+            <section className="py-16 bg-base-200 transition-colors duration-500">
+                <div className="container mx-auto px-4">
+                    <div className="text-center">
+                        <span className="loading loading-spinner loading-lg text-primary"></span>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     if (reviews.length === 0) {
         return (
@@ -123,22 +121,24 @@ const Feedback = () => {
 
                             {/* Feedback Text: text-base-content/70 for light, text-base-content for contrast */}
                             <p className="text-lg italic mb-4 text-base-content/80">
-                                "{reviews[reviewIndex].comment}"
+                                "{reviews[reviewIndex].comment || reviews[reviewIndex].feedback}"
                             </p>
 
                             {/* Author Info */}
                             <div className="mt-4 pt-4 border-t border-base-300">
                                 {/* Name: text-base-content */}
                                 <p className="font-bold text-base-content">
-                                    {reviews[reviewIndex].userName || (reviews[reviewIndex]?.userEmail ? reviews[reviewIndex].userEmail.split('@')[0] : 'Anonymous')}
+                                    {reviews[reviewIndex].userName || 
+                                     reviews[reviewIndex].name || 
+                                     (reviews[reviewIndex]?.userEmail ? reviews[reviewIndex].userEmail.split('@')[0] : 'Anonymous')}
                                 </p>
                                 {/* Product: text-primary */}
                                 <p className="text-sm text-primary">
-                                    {reviews[reviewIndex].productName}
+                                    {reviews[reviewIndex].productName || reviews[reviewIndex].role || 'Customer'}
                                 </p>
                                 {/* Star Rating (Static yellow is fine for stars) */}
                                 <div className="flex text-yellow-500 text-sm mt-1">
-                                    {[...Array(reviews[reviewIndex].rating)].map((_, i) => (
+                                    {[...Array(reviews[reviewIndex].rating || 5)].map((_, i) => (
                                         <span key={i}>★</span>
                                     ))}
                                 </div>

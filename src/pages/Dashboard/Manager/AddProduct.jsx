@@ -44,21 +44,6 @@ const AddProduct = () => {
         return <Loading />;
     }
 
-    // Fetch user data to check suspend status
-    const { data: userData = null, isLoading: userDataLoading } = useQuery({
-        queryKey: ['user-suspend-check', user?.email],
-        enabled: !!user?.email,
-        queryFn: async () => {
-            const res = await axiosSecure.get(`/users/${user.email}/role`);
-            return res.data;
-        }
-    });
-
-    // Show loading while checking user status
-    if (userDataLoading) {
-        return <Loading />;
-    }
-
     // Helper function to clean up preview URLs (memory management)
     const cleanupImagePreviews = (urls) => {
         urls.forEach(url => URL.revokeObjectURL(url));
