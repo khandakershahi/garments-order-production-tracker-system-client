@@ -167,11 +167,11 @@ const ManageUsers = () => {
     // to correctly manage both role AND status, which is required for the pending workflow.
 
     return (
-        <div className="bg-white">
-            <h2 className="text-5xl ml-4 py-3">Manage Users: {users.length}</h2>
-            <p>{searchText}</p>
-            {/* Search Input remains the same */}
-            <label className="input ml-5">
+        <div className="bg-base-100 min-h-screen p-6">
+            <h2 className="text-3xl font-bold text-base-content mb-4">Manage Users: {users.length}</h2>
+            
+            {/* Search Input */}
+            <label className="input input-bordered bg-base-200 flex items-center gap-2 max-w-md mb-6">
                 <svg
                     className="h-[1em] opacity-50"
                     xmlns="http://www.w3.org/2000/svg"
@@ -191,16 +191,16 @@ const ManageUsers = () => {
                 <input
                     onChange={(e) => setSearchText(e.target.value)}
                     type="search"
-                    className="grow"
+                    className="grow bg-transparent text-base-content"
                     placeholder="Search users"
                 />
             </label>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto bg-base-200 rounded-lg shadow-lg">
                 <table className="table">
                     {/* head */}
-                    <thead>
-                        <tr>
+                    <thead className="bg-base-300">
+                        <tr className="text-base-content">
                             <th>#</th>
                             <th>User</th>
                             <th>Email</th>
@@ -212,8 +212,8 @@ const ManageUsers = () => {
                     </thead>
                     <tbody>
                         {users.map((user, index) => (
-                            <tr key={user._id}>
-                                <td>{index + 1}</td>
+                            <tr key={user._id} className="hover:bg-base-300 transition-colors">
+                                <td className="text-base-content">{index + 1}</td>
                                 <td>
                                     <div className="flex items-center gap-3">
                                         <div className="avatar">
@@ -230,13 +230,13 @@ const ManageUsers = () => {
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="font-bold">{user.name}</div>
+                                            <div className="font-bold text-base-content">{user.name}</div>
 
                                         </div>
                                     </div>
                                 </td>
-                                <td>{user.email}</td>
-                                <td>
+                                <td className="text-base-content">{user.email}</td>
+                                <td className="text-base-content">
                                     {/* Capitalize role for better display */}
                                     {user.role ? user.role.toUpperCase() : 'N/A'}
                                 </td>
@@ -262,7 +262,7 @@ const ManageUsers = () => {
                                     {user.status === "pending" && (
                                         <button
                                             onClick={() => handleApproveUser(user)}
-                                            className="btn btn-sm bg-yellow-500 text-white"
+                                            className="btn btn-sm btn-warning text-white"
                                             title="Approve & Activate"
                                         >
                                             <FaCheckCircle /> Approve
@@ -273,7 +273,7 @@ const ManageUsers = () => {
                                     {user.status === "active" && (
                                         <button
                                             onClick={() => handleSuspendUser(user)}
-                                            className="btn btn-sm bg-red-500 text-white"
+                                            className="btn btn-sm btn-error text-white"
                                             title="Suspend User"
                                         >
                                             <FaBan /> Suspend
@@ -284,7 +284,7 @@ const ManageUsers = () => {
                                     {user.status === "suspended" && (
                                         <button
                                             onClick={() => handleUnsuspendUser(user)}
-                                            className="btn btn-sm bg-green-500 text-white"
+                                            className="btn btn-sm btn-success text-white"
                                             title="Unsuspend User"
                                         >
                                             <FaUnlock /> Unsuspend
@@ -295,7 +295,7 @@ const ManageUsers = () => {
                                     {user.role !== "admin" && user.status !== "suspended" && (
                                         <button
                                             onClick={() => handleMakeAdmin(user)}
-                                            className="btn btn-sm bg-green-400"
+                                            className="btn btn-sm btn-success"
                                             title="Make Admin"
                                             disabled={user.status === "pending"}
                                         >
@@ -307,7 +307,7 @@ const ManageUsers = () => {
                                     {user.role !== "buyer" && user.status !== "suspended" && (
                                         <button
                                             onClick={() => handleDemoteToBuyer(user)}
-                                            className="btn btn-sm bg-red-400"
+                                            className="btn btn-sm btn-error"
                                             title="Demote to Buyer"
                                         >
                                             <FiShieldOff />

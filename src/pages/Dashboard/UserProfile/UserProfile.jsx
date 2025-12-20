@@ -30,10 +30,10 @@ const RoleSpecificContent = ({ role }) => {
 
     return (
         <div className="text-center mt-6">
-            <span className={`badge badge-lg ${badgeColor} text-black font-bold`}>
+            <span className={`badge badge-lg ${badgeColor} text-white font-bold`}>
                 Role: {role.toUpperCase()}
             </span>
-            <p className="mt-3 text-lg text-gray-700">{content}</p>
+            <p className="mt-3 text-lg text-base-content/80">{content}</p>
         </div>
     );
 };
@@ -63,73 +63,75 @@ const UserProfile = () => {
 
     // 3. Handle Case where User is Not Logged In
     if (!user) {
-        return <p className="text-center text-red-500 text-xl">User data not found. Please log in.</p>;
+        return <p className="text-center text-error text-xl">User data not found. Please log in.</p>;
     }
 
     // 4. Render Main Content
     return (
-        <div className="bg-white p-8 rounded-xl shadow-2xl max-w-3xl mx-auto my-10">
-            <h2 className="text-4xl font-extrabold text-center text-primary mb-8 border-b pb-4">
-                👋 Welcome, {user.displayName || user.email}!
-            </h2>
+        <div className="bg-base-100 min-h-screen p-8">
+            <div className="bg-base-200 p-8 rounded-xl shadow-2xl max-w-3xl mx-auto">
+                <h2 className="text-4xl font-extrabold text-center text-primary mb-8 border-b border-base-content/20 pb-4">
+                    👋 Welcome, {user.displayName || user.email}!
+                </h2>
 
-            <div className="flex flex-col items-center">
-                {/* User Avatar */}
-                <div className="avatar">
-                    <div className="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-                        <img
-                            src={user.photoURL || 'https://via.placeholder.com/150'}
-                            alt={`${user.displayName}'s profile`}
-                        />
-                    </div>
-                </div>
-
-                {/* Basic User Information */}
-                <div className="mt-6 w-full space-y-3">
-                    <p className="flex justify-between items-center text-xl border-b pb-2">
-                        <span className="font-semibold text-gray-600">Full Name:</span>
-                        <span className="text-gray-900">{user.displayName || "Not Provided"}</span>
-                    </p>
-                    <p className="flex justify-between items-center text-xl border-b pb-2">
-                        <span className="font-semibold text-gray-600">Email:</span>
-                        <span className="text-gray-900">{user.email}</span>
-                    </p>
-                    <p className="flex justify-between items-center text-xl border-b pb-2">
-                        <span className="font-semibold text-gray-600">Account Created:</span>
-                        <span className="text-gray-900">
-                            {user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}
-                        </span>
-                    </p>
-                </div>
-
-                {/* Role Specific Content (Pass the 'role' as a prop) */}
-                <RoleSpecificContent role={role} />
-
-                {/* Suspend Feedback Display */}
-                {userData?.status === 'suspended' && userData?.suspendFeedback && (
-                    <div className="alert alert-error mt-6 w-full shadow-lg">
-                        <div className="flex-col items-start w-full">
-                            <h3 className="font-bold text-lg flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                Account Suspended
-                            </h3>
-                            <div className="mt-3 w-full">
-                                <p className="font-semibold">Reason: <span className="font-normal">{userData.suspendReason}</span></p>
-                                <p className="font-semibold mt-2">Details:</p>
-                                <p className="font-normal bg-base-100 p-3 rounded mt-1">{userData.suspendFeedback}</p>
-                                <p className="text-sm mt-2 opacity-70">Suspended on: {new Date(userData.suspendedAt).toLocaleString()}</p>
-                            </div>
+                <div className="flex flex-col items-center">
+                    {/* User Avatar */}
+                    <div className="avatar">
+                        <div className="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                            <img
+                                src={user.photoURL || 'https://via.placeholder.com/150'}
+                                alt={`${user.displayName}'s profile`}
+                            />
                         </div>
                     </div>
-                )}
 
-                {/* Profile Update Button (Global) */}
-                <button
-                    className="btn btn-primary mt-8 w-full sm:w-auto"
-                    onClick={() => console.log('Edit Profile Clicked')}
-                >
-                    Update Profile Details
-                </button>
+                    {/* Basic User Information */}
+                    <div className="mt-6 w-full space-y-3">
+                        <p className="flex justify-between items-center text-xl border-b border-base-content/20 pb-2">
+                            <span className="font-semibold text-base-content/70">Full Name:</span>
+                            <span className="text-base-content">{user.displayName || "Not Provided"}</span>
+                        </p>
+                        <p className="flex justify-between items-center text-xl border-b border-base-content/20 pb-2">
+                            <span className="font-semibold text-base-content/70">Email:</span>
+                            <span className="text-base-content">{user.email}</span>
+                        </p>
+                        <p className="flex justify-between items-center text-xl border-b border-base-content/20 pb-2">
+                            <span className="font-semibold text-base-content/70">Account Created:</span>
+                            <span className="text-base-content">
+                                {user.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}
+                            </span>
+                        </p>
+                    </div>
+
+                    {/* Role Specific Content (Pass the 'role' as a prop) */}
+                    <RoleSpecificContent role={role} />
+
+                    {/* Suspend Feedback Display */}
+                    {userData?.status === 'suspended' && userData?.suspendFeedback && (
+                        <div className="alert alert-error mt-6 w-full shadow-lg">
+                            <div className="flex-col items-start w-full">
+                                <h3 className="font-bold text-lg flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Account Suspended
+                                </h3>
+                                <div className="mt-3 w-full">
+                                    <p className="font-semibold">Reason: <span className="font-normal">{userData.suspendReason}</span></p>
+                                    <p className="font-semibold mt-2">Details:</p>
+                                    <p className="font-normal bg-base-100 p-3 rounded mt-1">{userData.suspendFeedback}</p>
+                                    <p className="text-sm mt-2 opacity-70">Suspended on: {new Date(userData.suspendedAt).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Profile Update Button (Global) */}
+                    <button
+                        className="btn btn-primary mt-8 w-full sm:w-auto"
+                        onClick={() => console.log('Edit Profile Clicked')}
+                    >
+                        Update Profile Details
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -184,10 +184,11 @@ const AddProduct = () => {
 
     // --- Render JSX (same) ---
     return (
-        <div className="bg-white rounded-4xl p-8">
-            <h2 className="text-4xl font-bold text-center mb-10 text-primary">
-                Add New Product (Manager Access)
-            </h2>
+        <div className="bg-base-100 min-h-screen p-8">
+            <div className="bg-base-200 rounded-4xl p-8 shadow-xl">
+                <h2 className="text-4xl font-bold text-center mb-10 text-primary">
+                    Add New Product (Manager Access)
+                </h2>
 
             {/* Suspend Alert */}
             {userData?.status === 'suspended' && (
@@ -213,15 +214,15 @@ const AddProduct = () => {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit(handleAddProduct)} className="p-4 text-black space-y-6">
+            <form onSubmit={handleSubmit(handleAddProduct)} className="p-4 text-base-content space-y-6">
 
                 {/* Product Name / Title */}
                 <fieldset className="fieldset">
-                    <label className="label text-lg font-semibold">Product Name / Title <span className="text-red-500">*</span></label>
+                    <label className="label text-lg font-semibold text-base-content">Product Name / Title <span className="text-error">*</span></label>
                     <input
                         type="text"
                         {...register("productName", { required: "Product Name is required" })}
-                        className="input input-bordered w-full"
+                        className="input input-bordered w-full bg-base-100 text-base-content"
                         placeholder="e.g., Slim Fit Cotton Shirt"
                     />
                     {errors.productName && <p className="text-error text-sm mt-1">{errors.productName.message}</p>}
@@ -229,10 +230,10 @@ const AddProduct = () => {
 
                 {/* Product Description */}
                 <fieldset className="fieldset">
-                    <label className="label text-lg font-semibold">Product Description <span className="text-red-500">*</span></label>
+                    <label className="label text-lg font-semibold text-base-content">Product Description <span className="text-error">*</span></label>
                     <textarea
                         {...register("productDescription", { required: "Description is required" })}
-                        className="textarea textarea-bordered w-full h-32"
+                        className="textarea textarea-bordered w-full h-32 bg-base-100 text-base-content"
                         placeholder="Provide detailed product specifications, materials, and sizing info."
                     />
                     {errors.productDescription && <p className="text-error text-sm mt-1">{errors.productDescription.message}</p>}
@@ -242,10 +243,10 @@ const AddProduct = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Category */}
                     <fieldset className="fieldset">
-                        <label className="label text-lg font-semibold">Category <span className="text-red-500">*</span></label>
+                        <label className="label text-lg font-semibold text-base-content">Category <span className="text-error">*</span></label>
                         <select
                             {...register("category", { required: "Category is required" })}
-                            className="select select-bordered w-full"
+                            className="select select-bordered w-full bg-base-100 text-base-content"
                             defaultValue=""
                         >
                             <option value="" disabled>Select a Category</option>
@@ -258,7 +259,7 @@ const AddProduct = () => {
 
                     {/* Price */}
                     <fieldset className="fieldset">
-                        <label className="label text-lg font-semibold">Price (Taka) <span className="text-red-500">*</span></label>
+                        <label className="label text-lg font-semibold text-base-content">Price (Taka) <span className="text-error">*</span></label>
                         <input
                             type="number"
                             step="0.01"
@@ -267,7 +268,7 @@ const AddProduct = () => {
                                 min: { value: 1, message: "Price must be positive" },
                                 valueAsNumber: true
                             })}
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full bg-base-100 text-base-content"
                             placeholder="e.g., 850.50"
                         />
                         {errors.price && <p className="text-error text-sm mt-1">{errors.price.message}</p>}
@@ -275,7 +276,7 @@ const AddProduct = () => {
 
                     {/* Available Quantity */}
                     <fieldset className="fieldset">
-                        <label className="label text-lg font-semibold">Available Quantity <span className="text-red-500">*</span></label>
+                        <label className="label text-lg font-semibold text-base-content">Available Quantity <span className="text-error">*</span></label>
                         <input
                             type="number"
                             {...register("availableQuantity", {
@@ -283,7 +284,7 @@ const AddProduct = () => {
                                 min: { value: 1, message: "Must be at least 1" },
                                 valueAsNumber: true
                             })}
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full bg-base-100 text-base-content"
                             placeholder="e.g., 500"
                         />
                         {errors.availableQuantity && <p className="text-error text-sm mt-1">{errors.availableQuantity.message}</p>}
@@ -294,7 +295,7 @@ const AddProduct = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Minimum Order Quantity (MOQ) */}
                     <fieldset className="fieldset">
-                        <label className="label text-lg font-semibold">Minimum Order Quantity (MOQ) <span className="text-red-500">*</span></label>
+                        <label className="label text-lg font-semibold text-base-content">Minimum Order Quantity (MOQ) <span className="text-error">*</span></label>
                         <input
                             type="number"
                             {...register("minOrderQuantity", {
@@ -302,7 +303,7 @@ const AddProduct = () => {
                                 min: { value: 1, message: "MOQ must be at least 1" },
                                 valueAsNumber: true
                             })}
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full bg-base-100 text-base-content"
                             placeholder="e.g., 50"
                         />
                         {errors.minOrderQuantity && <p className="text-error text-sm mt-1">{errors.minOrderQuantity.message}</p>}
@@ -310,21 +311,21 @@ const AddProduct = () => {
 
                     {/* Demo Video Link */}
                     <fieldset className="fieldset">
-                        <label className="label text-lg font-semibold">Demo Video Link (Optional)</label>
+                        <label className="label text-lg font-semibold text-base-content">Demo Video Link (Optional)</label>
                         <input
                             type="url"
                             {...register("demoVideoLink")}
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full bg-base-100 text-base-content"
                             placeholder="e.g., https://youtube.com/..."
                         />
                     </fieldset>
 
                     {/* Payment Options */}
                     <fieldset className="fieldset">
-                        <label className="label text-lg font-semibold">Payment Option <span className="text-red-500">*</span></label>
+                        <label className="label text-lg font-semibold text-base-content">Payment Option <span className="text-error">*</span></label>
                         <select
                             {...register("paymentOption", { required: "Payment option is required" })}
-                            className="select select-bordered w-full"
+                            className="select select-bordered w-full bg-base-100 text-base-content"
                             defaultValue=""
                         >
                             <option value="" disabled>Select Option</option>
@@ -337,27 +338,27 @@ const AddProduct = () => {
                 </div>
 
                 {/* Feature Image Upload */}
-                <fieldset className="fieldset border p-4 rounded-lg border-primary/50">
-                    <label className="label text-lg font-semibold">Feature Image (Main Image) <span className="text-red-500">*</span></label>
-                    <p className="text-sm text-gray-600 mb-2">This image will be displayed as the main product image and in the hero slider if selected.</p>
+                <fieldset className="fieldset border p-4 rounded-lg border-primary/50 bg-base-100">
+                    <label className="label text-lg font-semibold text-base-content">Feature Image (Main Image) <span className="text-error">*</span></label>
+                    <p className="text-sm text-base-content/70 mb-2">This image will be displayed as the main product image and in the hero slider if selected.</p>
                     <input
                         type="file"
                         accept="image/*"
                         {...register("featureImage", { required: "Feature image is required" })}
                         onChange={handleFeatureImageChange}
-                        className="file-input file-input-bordered w-full"
+                        className="file-input file-input-bordered w-full bg-base-100"
                     />
                     {errors.featureImage && <p className="text-error text-sm mt-1">{errors.featureImage.message}</p>}
 
                     {/* Feature Image Preview */}
                     {featureImagePreview && (
                         <div className="mt-4">
-                            <p className="col-span-full font-medium mb-2">Feature Image Preview:</p>
+                            <p className="col-span-full font-medium mb-2 text-base-content">Feature Image Preview:</p>
                             <div className="w-48 h-48 mx-auto">
                                 <img
                                     src={featureImagePreview}
                                     alt="Feature image preview"
-                                    className="w-full h-full object-cover rounded-md border border-gray-300 shadow-sm"
+                                    className="w-full h-full object-cover rounded-md border border-base-content/20 shadow-sm"
                                 />
                             </div>
                         </div>
@@ -372,14 +373,14 @@ const AddProduct = () => {
                             {...register("showInHeroSlider")}
                             className="checkbox checkbox-primary"
                         />
-                        <span className="label-text text-lg">Show in Hero Slider</span>
+                        <span className="label-text text-lg text-base-content">Show in Hero Slider</span>
                     </label>
-                    <p className="text-sm text-gray-600 mt-1">Check this to display the product in the homepage hero slider.</p>
+                    <p className="text-sm text-base-content/70 mt-1">Check this to display the product in the homepage hero slider.</p>
                 </fieldset>
 
                 {/* Images Upload */}
-                <fieldset className="fieldset border p-4 rounded-lg border-primary/50">
-                    <label className="label text-lg font-semibold">Product Images Upload (Multiple) <span className="text-red-500">*</span></label>
+                <fieldset className="fieldset border p-4 rounded-lg border-primary/50 bg-base-100">
+                    <label className="label text-lg font-semibold text-base-content">Product Images Upload (Multiple) <span className="text-error">*</span></label>
                     <input
                         type="file"
                         accept="image/*"
@@ -389,21 +390,21 @@ const AddProduct = () => {
                             register('images').onChange(e);
                             handleImageChange(e);
                         }}
-                        className="file-input file-input-bordered w-full"
+                        className="file-input file-input-bordered w-full bg-base-100"
                     />
                     {errors.images && <p className="text-error text-sm mt-1">{errors.images.message}</p>}
 
                     {/* Image Preview */}
                     {imagePreviews.length > 0 && (
                         <div className="mt-4">
-                            <p className="col-span-full font-medium mb-2">Image Previews:</p>
+                            <p className="col-span-full font-medium mb-2 text-base-content">Image Previews:</p>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {imagePreviews.map((url, index) => (
                                     <img
                                         key={index}
                                         src={url}
                                         alt={`Product preview ${index + 1}`}
-                                        className="w-full h-24 object-cover rounded-md border border-gray-300 shadow-sm"
+                                        className="w-full h-24 object-cover rounded-md border border-base-content/20 shadow-sm"
                                     />
                                 ))}
                             </div>
@@ -424,7 +425,7 @@ const AddProduct = () => {
                         htmlFor="showhome"
                         className="label cursor-pointer"
                     >
-                        <span className="label-text text-lg font-medium text-gray-700">Show on Home Page "Our Products" section</span>
+                        <span className="label-text text-lg font-medium text-base-content">Show on Home Page "Our Products" section</span>
                     </label>
                 </fieldset>
 
@@ -435,6 +436,7 @@ const AddProduct = () => {
                     disabled={isUploading || userData?.status === 'suspended'}
                 />
             </form>
+            </div>
         </div>
     );
 };

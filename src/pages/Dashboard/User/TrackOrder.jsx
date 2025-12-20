@@ -43,94 +43,96 @@ const TrackOrder = () => {
 
     const getStepIcon = (status) => {
         if (status === 'completed') {
-            return <FaCheckCircle className="text-green-500 text-xl" />;
+            return <FaCheckCircle className="text-success text-xl" />;
         } else if (status === 'in_progress') {
-            return <FaTruck className="text-blue-500 text-xl" />;
+            return <FaTruck className="text-info text-xl" />;
         } else {
-            return <FaClock className="text-gray-400 text-xl" />;
+            return <FaClock className="text-base-content/40 text-xl" />;
         }
     };
 
     const getStepColor = (status) => {
-        if (status === 'completed') return 'border-green-500 bg-green-50';
-        if (status === 'in_progress') return 'border-blue-500 bg-blue-50';
-        return 'border-gray-300 bg-gray-50';
+        if (status === 'completed') return 'border-success bg-success/10';
+        if (status === 'in_progress') return 'border-info bg-info/10';
+        return 'border-base-content/30 bg-base-200';
     };
 
     if (isLoading) return <Loading />;
-    if (error) return <div className="text-center py-8">Error loading tracking information</div>;
+    if (error) return <div className="text-center py-8 text-error">Error loading tracking information</div>;
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Track Order #{orderId}</h1>
+        <div className="bg-base-100 min-h-screen p-6">
+            <div className="max-w-7xl mx-auto">
+                <h1 className="text-3xl font-bold mb-6 text-base-content">Track Order #{orderId}</h1>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Timeline Section */}
-                <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold mb-4">Production Timeline</h2>
-                    {tracking.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                            No tracking information available yet.
-                        </div>
-                    ) : (
-                        <div className="relative">
-                            {/* Vertical line */}
-                            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-300"></div>
-                            <div className="space-y-6">
-                                {tracking.map((item, index) => (
-                                    <div key={index} className="relative flex items-start space-x-4">
-                                        {/* Timeline dot */}
-                                        <div className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-4 ${item.status === 'completed' ? 'bg-green-500 border-green-500' : item.status === 'in_progress' ? 'bg-blue-500 border-blue-500' : 'bg-gray-300 border-gray-300'}`}>
-                                            {getStepIcon(item.status)}
-                                        </div>
-                                        {/* Content */}
-                                        <div className={`flex-1 p-4 rounded-lg ${getStepColor(item.status)}`}>
-                                            <h3 className="font-semibold text-lg">{item.step}</h3>
-                                            <p className="text-sm text-gray-600">{item.date}</p>
-                                            <p className="text-sm text-gray-700 mt-1">
-                                                <FaMapMarkerAlt className="inline mr-1" />
-                                                {item.location}
-                                            </p>
-                                            {item.notes && (
-                                                <p className="text-sm text-gray-600 mt-2 italic">
-                                                    {item.notes}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Timeline Section */}
+                    <div className="space-y-4 bg-base-200 p-6 rounded-lg">
+                        <h2 className="text-2xl font-semibold mb-4 text-base-content">Production Timeline</h2>
+                        {tracking.length === 0 ? (
+                            <div className="text-center py-8 text-base-content/70">
+                                No tracking information available yet.
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                {/* Vertical line */}
+                                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-base-content/30"></div>
+                                <div className="space-y-6">
+                                    {tracking.map((item, index) => (
+                                        <div key={index} className="relative flex items-start space-x-4">
+                                            {/* Timeline dot */}
+                                            <div className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-4 ${item.status === 'completed' ? 'bg-success border-success' : item.status === 'in_progress' ? 'bg-info border-info' : 'bg-base-content/30 border-base-content/30'}`}>
+                                                {getStepIcon(item.status)}
+                                            </div>
+                                            {/* Content */}
+                                            <div className={`flex-1 p-4 rounded-lg border-2 ${getStepColor(item.status)}`}>
+                                                <h3 className="font-semibold text-lg text-base-content">{item.step}</h3>
+                                                <p className="text-sm text-base-content/70">{item.date}</p>
+                                                <p className="text-sm text-base-content/80 mt-1">
+                                                    <FaMapMarkerAlt className="inline mr-1" />
+                                                    {item.location}
                                                 </p>
-                                            )}
+                                                {item.notes && (
+                                                    <p className="text-sm text-base-content/70 mt-2 italic">
+                                                        {item.notes}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
                                 ))}
                             </div>
                         </div>
                     )}
                 </div>
 
-                {/* Map Section */}
-                <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold mb-4">Current Location</h2>
-                    <div className="border rounded-lg overflow-hidden h-96">
-                        <MapContainer
-                            center={[currentLocation.lat, currentLocation.lng]}
-                            zoom={12}
-                            scrollWheelZoom={false}
-                            className="h-full"
-                        >
-                            <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-                            <Marker position={[currentLocation.lat, currentLocation.lng]}>
-                                <Popup>
-                                    <strong>Current Location</strong><br />
-                                    {tracking.length > 0 ? tracking[tracking.length - 1].location : "Factory Location"}
-                                </Popup>
-                            </Marker>
-                        </MapContainer>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                        <p><strong>Product:</strong> {order.productName}</p>
-                        <p><strong>Tracking ID:</strong> {order.trackingId}</p>
-                        <p><strong>Quantity:</strong> {order.quantity} pieces</p>
-                        <p><strong>Last Update:</strong> {tracking.length > 0 ? tracking[tracking.length - 1].date : 'N/A'}</p>
+                    {/* Map Section */}
+                    <div className="space-y-4 bg-base-200 p-6 rounded-lg">
+                        <h2 className="text-2xl font-semibold mb-4 text-base-content">Current Location</h2>
+                        <div className="border border-base-content/20 rounded-lg overflow-hidden h-96">
+                            <MapContainer
+                                center={[currentLocation.lat, currentLocation.lng]}
+                                zoom={12}
+                                scrollWheelZoom={false}
+                                className="h-full"
+                            >
+                                <TileLayer
+                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                <Marker position={[currentLocation.lat, currentLocation.lng]}>
+                                    <Popup>
+                                        <strong>Current Location</strong><br />
+                                        {tracking.length > 0 ? tracking[tracking.length - 1].location : "Factory Location"}
+                                    </Popup>
+                                </Marker>
+                            </MapContainer>
+                        </div>
+                        <div className="text-sm text-base-content/70 space-y-1">
+                            <p><strong className="text-base-content">Product:</strong> {order.productName}</p>
+                            <p><strong className="text-base-content">Tracking ID:</strong> {order.trackingId}</p>
+                            <p><strong className="text-base-content">Quantity:</strong> {order.quantity} pieces</p>
+                            <p><strong className="text-base-content">Last Update:</strong> {tracking.length > 0 ? tracking[tracking.length - 1].date : 'N/A'}</p>
+                        </div>
                     </div>
                 </div>
             </div>

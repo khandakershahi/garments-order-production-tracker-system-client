@@ -137,10 +137,11 @@ const ManageProducts = () => {
 
 
     return (
-        <div className="bg-white p-8 rounded-xl shadow-lg">
-            <h2 className="text-4xl font-bold text-center mb-8 text-primary">
-                Manage My Products ({products.length})
-            </h2>
+        <div className="bg-base-100 min-h-screen p-8">
+            <div className="bg-base-200 p-8 rounded-xl shadow-lg">
+                <h2 className="text-4xl font-bold text-center mb-8 text-primary">
+                    Manage My Products ({products.length})
+                </h2>
 
             {/* ⭐ Search Input and Add Button ⭐ */}
             <div className="flex justify-between items-center mb-6">
@@ -150,7 +151,7 @@ const ManageProducts = () => {
                         name="search"
                         defaultValue={searchText}
                         placeholder="Search by title..."
-                        className="input input-bordered w-full max-w-xs"
+                        className="input input-bordered w-full max-w-xs bg-base-100 text-base-content"
                     />
                     <button type="submit" className="btn btn-primary">
                         <FaSearch />
@@ -165,11 +166,11 @@ const ManageProducts = () => {
                 </Link>
             </div>
 
-            <div className="overflow-x-auto border rounded-lg">
+            <div className="overflow-x-auto border border-base-content/20 rounded-lg bg-base-100">
                 <table className="table w-full">
                     {/* ⭐ Table Head ⭐ */}
                     <thead>
-                        <tr className="bg-base-200">
+                        <tr className="bg-base-300 text-base-content">
                             <th>#</th>
                             <th>Image</th>
                             <th>Product Info</th>
@@ -182,14 +183,14 @@ const ManageProducts = () => {
                     <tbody>
                         {products.length === 0 ? (
                             <tr>
-                                <td colSpan="7" className="text-center py-12 text-xl text-gray-500">
+                                <td colSpan="7" className="text-center py-12 text-xl text-base-content/70">
                                     No products found for your account. Try adding one!
                                 </td>
                             </tr>
                         ) : (
                             products.map((product, index) => (
-                                <tr key={product._id}>
-                                    <td>{index + 1}</td>
+                                <tr key={product._id} className="hover:bg-base-200 transition-colors">
+                                    <td className="text-base-content">{index + 1}</td>
 
                                     {/* ⭐ Product Data Columns ⭐ */}
                                     <td>
@@ -201,19 +202,19 @@ const ManageProducts = () => {
                                         </div>
                                     </td>
                                     <td>
-                                        <div className="font-bold">{product.title}</div>
-                                        <div className="text-sm opacity-50">{product.category}</div>
+                                        <div className="font-bold text-base-content">{product.title}</div>
+                                        <div className="text-sm opacity-50 text-base-content">{product.category}</div>
                                     </td>
-                                    <td>
+                                    <td className="text-base-content">
                                         Available: {product.availableQuantity}
                                         <br />
                                         <span className="badge badge-ghost badge-sm">MOQ: {product.minOrderQuantity}</span>
                                     </td>
-                                    <td>
+                                    <td className="text-base-content">
                                         ${product.price?.toFixed(2)}
                                     </td>
                                     <td>
-                                        <span className="text-xs">{product.productId}</span>
+                                        <span className="text-xs text-base-content">{product.productId}</span>
                                     </td>
 
                                     {/* Action Buttons */}
@@ -262,6 +263,7 @@ const ManageProducts = () => {
                     onSuccess={handleEditSuccess}
                 />
             )}
+            </div>
         </div>
     );
 };
