@@ -29,14 +29,27 @@ const TrackOrder = () => {
     };
 
     // Transform tracking logs to timeline format
-    const tracking = trackingLogs.map(log => ({
-        step: log.details,
-        date: new Date(log.createdAt).toLocaleString(),
-        location: log.location || "Factory Location",
-        coordinates: log.location ? { lat: 23.8103, lng: 90.4125 } : { lat: 23.8103, lng: 90.4125 }, // Mock coordinates
-        notes: log.notes || null,
-        status: log.status === 'shipped_out_for_delivery' ? 'in_progress' : 'completed'
-    }));
+    const tracking = trackingLogs.map(log => {
+        // Format the status into a readable label
+        const statusLabel = log.status 
+            ? log.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+            : 'Status Update';
+        
+        // Determine status type for icon/color
+        let statusType = 'completed';
+        if (log.status === 'shipped_out_for_delivery' || log.status === 'packed') {
+            statusType = 'in_progress';
+        }
+
+        return {
+            step: statusLabel,
+            date: new Date(log.timestamp || log.createdAt).toLocaleString(),
+            location: log.location || "Factory Location",
+            coordinates: { lat: 23.8103, lng: 90.4125 }, // Mock coordinates - can be enhanced with real geo data
+            notes: log.note || log.notes || null,
+            status: statusType
+        };
+    });
 
     // Get current location from latest tracking
     const currentLocation = tracking.length > 0 ? tracking[tracking.length - 1].coordinates : { lat: 23.8103, lng: 90.4125 };
