@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
@@ -7,6 +7,12 @@ import Swal from 'sweetalert2';
 const ApprovedOrders = () => {
     const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
+    const [trackingModalOrder, setTrackingModalOrder] = useState(null);
+    const [trackingData, setTrackingData] = useState({
+        status: '',
+        location: '',
+        note: '',
+    });
 
     const { data: orders = [], isLoading, refetch } = useQuery({
         queryKey: ['manager-approved-orders'],
@@ -61,6 +67,58 @@ const ApprovedOrders = () => {
                 }
             }
         });
+    };
+
+    const handleOpenTrackingModal = (order) => {
+        setTrackingModalOrder(order);
+        setTrackingData({
+            status: order.deliveryStatus || 'order_placed',
+            location: '',
+            note: '',
+        });
+    };
+
+    const handleCloseTrackingModal = () => {
+        setTrackingModalOrder(null);
+        setTrackingData({ status: '', location: '', note: '' });
+    };
+
+    const handleAddTracking = async (e) => {
+        e.preventDefault();
+        if (userData?.status === 'suspended') {
+            Swal.fire('Error', 'Your account is suspended. Cannot add tracking.', 'error');
+            return;
+        }
+
+        if (!trackingData.status || !trackingData.location) {
+            Swal.fire('Error', 'Status and Location are required', 'error');
+            return;
+        }
+
+        try {
+            const trackingLog = {
+                orderId: trackingModalOrder._id,
+                status: trackingData.status,
+                location: trackingData.location,
+                note: trackingData.note,
+                timestamp: new Date(),
+                addedBy: user.email,
+            };
+
+            await axiosSecure.post('/trackings', trackingLog);
+            
+            // Also update the order's delivery status
+            await axiosSecure.patch(`/orders/${trackingModalOrder._id}/delivery-status`, { 
+                deliveryStatus: trackingData.status 
+            });
+
+            refetch();
+            handleCloseTrackingModal();
+            Swal.fire('Success', 'Tracking information added successfully', 'success');
+        } catch (err) {
+            console.error('Add tracking failed', err);
+            Swal.fire('Error', err.response?.data?.message || 'Failed to add tracking', 'error');
+        }
     };
 
     if (isLoading) return <div>Loading...</div>;
@@ -124,45 +182,143 @@ const ApprovedOrders = () => {
                                     </select>
                                 </td>
                                 <td>
-                                    {/* Show Withdrawn Status */}
-                                    {(order.paymentStatus === 'Withdrawn' || order.paymentStatus?.includes('Withdrawn')) && (
-                                        <span className="badge badge-success gap-2">
-                                            ✓ Payment Withdrawn
-                                        </span>
-                                    )}
-                                    
-                                    {/* Show Withdraw Button when ready */}
-                                    {order.deliveryStatus === 'delivered' && 
-                                     order.paymentStatus && 
-                                     order.paymentStatus.includes('Paid') && 
-                                     !order.paymentStatus.includes('Withdrawn') && (
+                                    <div className="flex gap-2 flex-wrap">
+                                        {/* Add Tracking Button */}
                                         <button
-                                            className="btn btn-success btn-sm"
-                                            onClick={() => handleWithdrawPayment(order._id)}
+                                            className="btn btn-sm btn-info"
+                                            onClick={() => handleOpenTrackingModal(order)}
+                                            disabled={userData?.status === 'suspended'}
                                         >
-                                            Withdraw Payment
+                                            Add Tracking
                                         </button>
-                                    )}
-                                    
-                                    {/* Show Not Ready status */}
-                                    {order.deliveryStatus !== 'delivered' && (
-                                        <span className="badge badge-warning gap-2">
-                                            Pending Delivery
-                                        </span>
-                                    )}
-                                    
-                                    {order.deliveryStatus === 'delivered' && 
-                                     (!order.paymentStatus || !order.paymentStatus.includes('Paid')) && (
-                                        <span className="badge badge-error gap-2">
-                                            Payment Pending
-                                        </span>
-                                    )}
+
+                                        {/* Show Withdrawn Status */}
+                                        {(order.paymentStatus === 'Withdrawn' || order.paymentStatus?.includes('Withdrawn')) && (
+                                            <span className="badge badge-success gap-2">
+                                                ✓ Payment Withdrawn
+                                            </span>
+                                        )}
+                                        
+                                        {/* Show Withdraw Button when ready */}
+                                        {order.deliveryStatus === 'delivered' && 
+                                         order.paymentStatus && 
+                                         order.paymentStatus.includes('Paid') && 
+                                         !order.paymentStatus.includes('Withdrawn') && (
+                                            <button
+                                                className="btn btn-success btn-sm"
+                                                onClick={() => handleWithdrawPayment(order._id)}
+                                            >
+                                                Withdraw Payment
+                                            </button>
+                                        )}
+                                        
+                                        {/* Show Not Ready status */}
+                                        {order.deliveryStatus !== 'delivered' && (
+                                            <span className="badge badge-warning gap-2">
+                                                Pending Delivery
+                                            </span>
+                                        )}
+                                        
+                                        {order.deliveryStatus === 'delivered' && 
+                                         (!order.paymentStatus || !order.paymentStatus.includes('Paid')) && (
+                                            <span className="badge badge-error gap-2">
+                                                Payment Pending
+                                            </span>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* Add Tracking Modal */}
+            {trackingModalOrder && (
+                <dialog className="modal modal-open">
+                    <div className="modal-box bg-base-200">
+                        <h3 className="font-bold text-lg text-base-content mb-4">
+                            Add Tracking Information
+                        </h3>
+                        <p className="text-sm text-base-content/70 mb-4">
+                            Order: {trackingModalOrder.productTitle} (ID: {String(trackingModalOrder._id).slice(-8)})
+                        </p>
+                        
+                        <form onSubmit={handleAddTracking}>
+                            {/* Status Dropdown */}
+                            <div className="form-control mb-4">
+                                <label className="label">
+                                    <span className="label-text text-base-content">Status *</span>
+                                </label>
+                                <select
+                                    value={trackingData.status}
+                                    onChange={(e) => setTrackingData({ ...trackingData, status: e.target.value })}
+                                    className="select select-bordered bg-base-100 text-base-content"
+                                    required
+                                >
+                                    <option value="">Select Status</option>
+                                    <option value="cutting_completed">Cutting Completed</option>
+                                    <option value="sewing_started">Sewing Started</option>
+                                    <option value="finishing">Finishing</option>
+                                    <option value="qc_checked">QC Checked</option>
+                                    <option value="packed">Packed</option>
+                                    <option value="shipped_out_for_delivery">Shipped / Out for Delivery</option>
+                                    <option value="delivered">Delivered</option>
+                                </select>
+                            </div>
+
+                            {/* Location Input */}
+                            <div className="form-control mb-4">
+                                <label className="label">
+                                    <span className="label-text text-base-content">Location *</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={trackingData.location}
+                                    onChange={(e) => setTrackingData({ ...trackingData, location: e.target.value })}
+                                    placeholder="e.g., Dhaka Factory, Warehouse A"
+                                    className="input input-bordered bg-base-100 text-base-content"
+                                    required
+                                />
+                            </div>
+
+                            {/* Note Textarea */}
+                            <div className="form-control mb-4">
+                                <label className="label">
+                                    <span className="label-text text-base-content">Note (Optional)</span>
+                                </label>
+                                <textarea
+                                    value={trackingData.note}
+                                    onChange={(e) => setTrackingData({ ...trackingData, note: e.target.value })}
+                                    placeholder="Additional details about this update..."
+                                    className="textarea textarea-bordered bg-base-100 text-base-content"
+                                    rows="3"
+                                />
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="modal-action">
+                                <button
+                                    type="button"
+                                    className="btn btn-ghost"
+                                    onClick={handleCloseTrackingModal}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary"
+                                >
+                                    Add Tracking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <form method="dialog" className="modal-backdrop" onClick={handleCloseTrackingModal}>
+                        <button>close</button>
+                    </form>
+                </dialog>
+            )}
         </div>
     );
 };
