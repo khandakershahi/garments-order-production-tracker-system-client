@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useQuery } from '@tanstack/react-query';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 // =======================================================
 // 1. IMAGE IMPORTS & SLIDE DATA (Refactored to use DaisyUI backgrounds)
@@ -9,79 +11,95 @@ import BannerImg1 from '../../../assets/men-green-panjabi.png';
 import BannerImg2 from '../../../assets/Women-Sharee.png';
 import BannerImg3 from '../../../assets/Womens-Three-Piece-Set.png';
 
-const heroSlides = [
-    {
-        id: 1,
-        title: "Seamless Order Tracking",
-        subtitle: "Monitor every step from cutting to delivery.",
-        image: BannerImg1,
-        ctaText: "View All Products",
-        ctaLink: "/products",
-        // DaisyUI Classes: bg-secondary for the background
-        bgColor: "bg-info",
-        // Define text color class to maintain readability on the slide background
-        textColor: "text-info-content"
-    },
-    {
-        id: 2,
-        title: "Quality Production Management",
-        subtitle: "Manager tools for swift approval and tracking.",
-        image: BannerImg2,
-        ctaText: "Book a Product",
-        ctaLink: "/register",
-        // DaisyUI Classes: bg-accent for the background
-        bgColor: "bg-accent",
-        textColor: "text-accent-content"
-    },
-    {
-        id: 3,
-        title: "Unique Garment Solutions",
-        subtitle: "Designed for small to medium-sized factories.",
-        image: BannerImg3,
-        ctaText: "Learn More",
-        ctaLink: "/about-us",
-        // DaisyUI Classes: bg-info for the background
-        bgColor: "bg-secondary",
-        textColor: "text-secondary-content"
-    },
-];
+// =======================================================
+// 2. HERO COMPONENT
+// =======================================================
+const Hero = () => {
+    const axiosSecure = useAxiosSecure();
+    const [page, setPage] = useState(0);
+    const [direction, setDirection] = useState(0);
 
-// =======================================================
-// 2. FRAMER MOTION VARIANTS (Unchanged)
-// =======================================================
-const slideVariants = {
-    initial: (direction) => {
-        return {
-            x: direction > 0 ? 1000 : -1000,
-            opacity: 0,
-        };
-    },
-    animate: {
-        x: 0,
-        opacity: 1,
-        transition: {
-            x: { type: "spring", stiffness: 300, damping: 30 },
-            opacity: { duration: 0.2 },
+    // Fetch products for hero slider
+    const { data: heroProducts = [], isLoading } = useQuery({
+        queryKey: ['hero-slider-products'],
+        queryFn: async () => {
+            const res = await axiosSecure.get('/products/hero-slider');
+            console.log('Hero slider products from API:', res.data);
+            return res.data || [];
         },
-    },
-    exit: (direction) => {
-        return {
-            x: direction > 0 ? -1000 : 1000,
-            opacity: 0,
+    });
+
+    // Create hero slides from products or use fallback
+    const heroSlides = heroProducts.length > 0 
+        ? heroProducts.map((product, index) => ({
+            id: product._id,
+            title: product.title,
+            subtitle: `Starting from $${product.price}`,
+            image: product.featureImage,
+            ctaText: "View Product",
+            ctaLink: `/product/${product._id}`,
+            bgColor: ["bg-info", "bg-accent", "bg-secondary"][index % 3],
+            textColor: ["text-info-content", "text-accent-content", "text-secondary-content"][index % 3]
+        }))
+        : [
+            {
+                id: 1,
+                title: "Seamless Order Tracking",
+                subtitle: "Monitor every step from cutting to delivery.",
+                image: BannerImg1,
+                ctaText: "View All Products",
+                ctaLink: "/all-products",
+                bgColor: "bg-info",
+                textColor: "text-info-content"
+            },
+            {
+                id: 2,
+                title: "Quality Production Management",
+                subtitle: "Manager tools for swift approval and tracking.",
+                image: BannerImg2,
+                ctaText: "Book a Product",
+                ctaLink: "/register",
+                bgColor: "bg-accent",
+                textColor: "text-accent-content"
+            },
+            {
+                id: 3,
+                title: "Unique Garment Solutions",
+                subtitle: "Designed for small to medium-sized factories.",
+                image: BannerImg3,
+                ctaText: "Learn More",
+                ctaLink: "/about",
+                bgColor: "bg-secondary",
+                textColor: "text-secondary-content"
+            },
+        ];
+
+    const slideVariants = {
+        initial: (direction) => {
+            return {
+                x: direction > 0 ? 1000 : -1000,
+                opacity: 0,
+            };
+        },
+        animate: {
+            x: 0,
+            opacity: 1,
             transition: {
                 x: { type: "spring", stiffness: 300, damping: 30 },
                 opacity: { duration: 0.2 },
             },
-        };
-    },
-};
-
-// =======================================================
-// 3. HERO SLIDER COMPONENT (Refactored with DaisyUI)
-// =======================================================
-const Hero = () => {
-    const [page, setPage] = useState(0);
-    const [direction, setDirection] = useState(0);
+        },
+        exit: (direction) => {
+            return {
+                x: direction > 0 ? -1000 : 1000,
+                opacity: 0,
+                transition: {
+                    x: { type: "spring", stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 },
+                },
+            };
+        },
+    };
 
     const handleNext = () => {
         setDirection(1);
@@ -104,7 +122,6 @@ const Hero = () => {
 
         return () => clearInterval(timer);
     }, [page]);
-
 
     const currentSlide = heroSlides[page];
 

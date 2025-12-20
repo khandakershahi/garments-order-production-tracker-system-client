@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
+import Swal from 'sweetalert2';
 
 const MyOrders = () => {
     const { user } = useAuth();
@@ -22,21 +24,6 @@ const MyOrders = () => {
             .finally(() => setLoading(false));
     }, [user, axiosSecure]);
 
-    const handleConfirmCancel = async () => {
-        if (!cancelOrder) return;
-        try {
-            const res = await axiosSecure.patch(`/orders/${cancelOrder._id}/cancel`);
-            if (res.data?.modifiedCount) {
-                setOrders((prev) => prev.map(o => o._id === cancelOrder._id ? { ...o, orderStatus: 'Cancelled' } : o));
-            }
-        } catch (err) {
-            console.error('Cancel failed', err);
-            alert('Failed to cancel order');
-        } finally {
-            setCancelOrder(null);
-        }
-    };
-
     const handlePay = async (order) => {
         if (!order || !order._id) return;
         try {
@@ -47,11 +34,26 @@ const MyOrders = () => {
                 // Redirect browser to Stripe Checkout
                 window.location.href = url;
             } else {
-                alert('Failed to create checkout session.');
+                Swal.fire('Error', 'Failed to create checkout session.', 'error');
             }
         } catch (err) {
             console.error('Payment redirect failed', err);
-            alert(err.response?.data?.message || 'Payment failed to start');
+            Swal.fire('Error', err.response?.data?.message || 'Payment failed to start', 'error');
+        }
+    };
+
+    const handleConfirmCancel = async () => {
+        if (!cancelOrder) return;
+        try {
+            const res = await axiosSecure.patch(`/orders/${cancelOrder._id}/cancel`);
+            if (res.data?.modifiedCount) {
+                setOrders((prev) => prev.map(o => o._id === cancelOrder._id ? { ...o, orderStatus: 'Cancelled' } : o));
+            }
+        } catch (err) {
+            console.error('Cancel failed', err);
+            Swal.fire('Error', 'Failed to cancel order', 'error');
+        } finally {
+            setCancelOrder(null);
         }
     };
 
@@ -76,13 +78,15 @@ const MyOrders = () => {
                                 <th>Quantity</th>
                                 <th>Status</th>
                                 <th>Payment</th>
+                                <th>Tracking ID</th>
+                                <th>Delivery Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {orders.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="text-center py-8">No orders found.</td>
+                                    <td colSpan={8} className="text-center py-8">No orders found.</td>
                                 </tr>
                             )}
                             {orders.map((order) => (
@@ -93,12 +97,30 @@ const MyOrders = () => {
                                     <td>{order.orderStatus}</td>
                                     <td>{order.paymentStatus || order.paymentOption || 'N/A'}</td>
                                     <td>
+                                        <Link
+                                            to={`/dashboard/track-order/${order._id}`}
+                                            className="text-blue-600 hover:text-blue-800 underline"
+                                        >
+                                            {order.trackingId || 'N/A'}
+                                        </Link>
+                                    </td>
+                                    <td>
+                                        {order.deliveryStatus || 'order_placed'}
+                                    </td>
+                                    <td>
                                         <button
                                             className="btn btn-sm btn-ghost mr-2"
                                             onClick={() => setViewOrder(order)}
                                         >
                                             View
                                         </button>
+
+                                        <Link
+                                            to={`/dashboard/track-order/${order._id}`}
+                                            className="btn btn-sm btn-info mr-2"
+                                        >
+                                            Track Order
+                                        </Link>
 
                                         {order.orderStatus === 'Pending' && (
                                             <button

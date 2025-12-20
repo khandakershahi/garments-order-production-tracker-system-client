@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Link } from "react-router";
 import RootLayout from "../Layouts/RootLayout";
 import Home from "../pages/Home/Home/Home";
 import AuthLayout from "../Layouts/AuthLayout";
@@ -27,6 +27,9 @@ import ApprovedOrders from "../pages/Dashboard/Manager/ApprovedOrders";
 // Global Imports
 import UserProfile from "../pages/Dashboard/UserProfile/UserProfile";
 import MyOrders from "../pages/Dashboard/User/MyOrders";
+import PaymentSuccess from "../pages/Dashboard/Payment/PaymentSuccess";
+import PaymentCancelled from "../pages/Dashboard/Payment/PaymentCancelled";
+import TrackOrder from "../pages/Dashboard/User/TrackOrder";
 
 // Route Guards
 import AdminRoute from "./AdminRoute";
@@ -101,6 +104,14 @@ export const router = createBrowserRouter([
         path: 'my-orders',
         Component: MyOrders,
       },
+      {
+        path: 'payment-success',
+        Component: PaymentSuccess,
+      },
+      {
+        path: 'payment-cancelled',
+        Component: PaymentCancelled,
+      },
 
       // ------------------------------------
       // ADMIN RELATED ROUTES
@@ -156,7 +167,24 @@ export const router = createBrowserRouter([
       // ------------------------------------
       // USER/BUYER RELATED ROUTES (To be added later)
       // ------------------------------------
-      // e.g., 'my-orders', 'track-order'
+      {
+        path: 'track-order',
+        element: (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold mb-4">Track Your Order</h2>
+              <p className="text-gray-600 mb-4">Please select an order from your orders list to track its progress.</p>
+              <Link to="/dashboard/my-orders" className="btn btn-primary">
+                View My Orders
+              </Link>
+            </div>
+          </div>
+        ),
+      },
+      {
+        path: 'track-order/:orderId',
+        Component: TrackOrder,
+      }
     ]
   },
 ]);

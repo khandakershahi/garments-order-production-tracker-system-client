@@ -1,14 +1,42 @@
 import React from 'react';
 import { Link, NavLink, Outlet } from 'react-router'; // <<< Corrected import: Use 'react-router-dom'
 import logo from '../assets/favicon.png'
-import { FaUser, FaUsers, FaListAlt, FaCheckSquare } from 'react-icons/fa'; // Added necessary icons
+import { FaUser, FaUsers, FaListAlt, FaCheckSquare, FaSignOutAlt } from 'react-icons/fa'; // Added necessary icons
 import useRole from '../hooks/useRole';
 import { PiPackageFill } from 'react-icons/pi';
 import { GoPackageDependents } from 'react-icons/go';
 import { IoTimer } from 'react-icons/io5'; // Added Timer icon for Pending
+import useAuth from '../hooks/useAuth';
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router';
 
 const DashboardLayout = () => {
     const { role } = useRole();
+    const { user, logOut } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will be logged out of your account',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Logout'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                logOut()
+                    .then(() => {
+                        navigate('/');
+                    })
+                    .catch(error => {
+                        console.error('Logout error:', error);
+                        Swal.fire('Error', 'Failed to logout', 'error');
+                    });
+            }
+        });
+    };
 
     // Check if the role is ready before rendering role-specific menus
     if (!role) {
@@ -18,7 +46,7 @@ const DashboardLayout = () => {
     }
 
     return (
-        <div className="drawer lg:drawer-open container mx-auto">
+        <div className="drawer lg:drawer-open mx-auto">
             <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content">
                 {/* Navbar */}
@@ -28,6 +56,26 @@ const DashboardLayout = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path><path d="M9 4v16"></path><path d="M14 10l2 2l-2 2"></path></svg>
                     </label>
                     <div className="px-4">Garment Order Production Tracker</div>
+                    
+                    {/* User Profile Image */}
+                    {user && (
+                        <div className="navbar-end ml-auto">
+                            <NavLink to='/dashboard/profile' className="btn btn-ghost btn-circle avatar">
+                                <div className="w-10 rounded-full">
+                                    <img
+                                        className="w-10 rounded-full"
+                                        alt={user?.displayName || "User"}
+                                        src={
+                                            user?.photoURL ||
+                                            user?.providerData?.[0]?.photoURL ||
+                                            "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                        }
+                                        referrerPolicy="no-referrer"
+                                    />
+                                </div>
+                            </NavLink>
+                        </div>
+                    )}
                 </nav>
                 {/* Page content here */}
                 <Outlet></Outlet>
@@ -142,12 +190,16 @@ const DashboardLayout = () => {
                         </li>
 
 
-                        {/* -------------------- OTHER LINKS -------------------- */}
+                        {/* -------------------- LOGOUT BUTTON -------------------- */}
                         <li>
-                            <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
-                                {/* Settings icon */}
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M20 7h-9"></path><path d="M14 17H5"></path><circle cx="17" cy="17" r="3"></circle><circle cx="7" cy="7" r="3"></circle></svg>
-                                <span className="is-drawer-close:hidden">Settings</span>
+                            <button 
+                                onClick={handleLogout}
+                                className="is-drawer-close:tooltip is-drawer-close:tooltip-right text-red-500 hover:bg-red-50" 
+                                data-tip="Logout"
+                            >
+                                {/* Logout icon */}
+                                <FaSignOutAlt />
+                                <span className="is-drawer-close:hidden">Logout</span>
                             </button>
                         </li>
                     </ul>

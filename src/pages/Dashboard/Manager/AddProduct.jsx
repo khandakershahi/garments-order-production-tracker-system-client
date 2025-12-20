@@ -22,6 +22,7 @@ const AddProduct = () => {
     const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
 
     const [imagePreviews, setImagePreviews] = useState([]);
+    const [featureImagePreview, setFeatureImagePreview] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
     // Helper function to clean up preview URLs (memory management)
@@ -43,6 +44,21 @@ const AddProduct = () => {
         }
     };
 
+    // --- Feature Image Preview Handler ---
+    const handleFeatureImageChange = (e) => {
+        const file = e.target.files[0];
+        if (featureImagePreview) {
+            URL.revokeObjectURL(featureImagePreview);
+        }
+        
+        if (file && file.type.startsWith('image/')) {
+            const url = URL.createObjectURL(file);
+            setFeatureImagePreview(url);
+        } else {
+            setFeatureImagePreview(null);
+        }
+    };
+
     // --- Core Upload Function (same) ---
     const uploadImageToImgBB = async (imageFile) => {
         const formData = new FormData();
@@ -55,15 +71,32 @@ const AddProduct = () => {
     // --- Form Submission Handler (UPDATED) ---
     const handleAddProduct = async (data) => {
         const images = data.images;
+        const featureImage = data.featureImage;
 
         if (images.length === 0) {
             Swal.fire("Error", "Please select at least one product image.", "error");
             return;
         }
 
+        if (!featureImage || featureImage.length === 0) {
+            Swal.fire("Error", "Please select a feature image.", "error");
+            return;
+        }
+
         setIsUploading(true);
 
-        // 1. **Image Upload and URL Collection**
+        // 1. **Upload Feature Image**
+        let featureImageUrl = null;
+        try {
+            featureImageUrl = await uploadImageToImgBB(featureImage[0]);
+        } catch (imageError) {
+            console.error("Feature Image Upload Failed:", imageError);
+            setIsUploading(false);
+            Swal.fire("Error", "Failed to upload feature image to ImgBB. Check your API key or network.", "error");
+            return;
+        }
+
+        // 2. **Image Upload and URL Collection**
         let imageUrls = [];
         try {
             const uploadPromises = Array.from(images).map(image => uploadImageToImgBB(image));
@@ -76,7 +109,7 @@ const AddProduct = () => {
             return;
         }
 
-        // 2. **Prepare Product Data (NO ID GENERATED HERE)**
+        // 3. **Prepare Product Data (NO ID GENERATED HERE)**
         // The productId will be generated and added by the server.
         const productInfo = {
             title: data.productName,
@@ -85,10 +118,11 @@ const AddProduct = () => {
             price: parseFloat(data.price),
             availableQuantity: parseInt(data.availableQuantity),
             minOrderQuantity: parseInt(data.minOrderQuantity),
+            featureImage: featureImageUrl,
             images: imageUrls,
             videoLink: data.demoVideoLink || null,
             paymentOption: data.paymentOption,
-            showOnHomePage: data.showOnHomePage,
+            showInHeroSlider: data.showInHeroSlider || false,
             createdAt: new Date(),
         };
 
@@ -112,6 +146,10 @@ const AddProduct = () => {
                 reset();
                 cleanupImagePreviews(imagePreviews);
                 setImagePreviews([]);
+                if (featureImagePreview) {
+                    URL.revokeObjectURL(featureImagePreview);
+                    setFeatureImagePreview(null);
+                }
                 console.log("Product added. Navigating to manage products page...");
 
             } else {
@@ -263,6 +301,46 @@ const AddProduct = () => {
                     </fieldset>
                 </div>
 
+                {/* Feature Image Upload */}
+                <fieldset className="fieldset border p-4 rounded-lg border-primary/50">
+                    <label className="label text-lg font-semibold">Feature Image (Main Image) <span className="text-red-500">*</span></label>
+                    <p className="text-sm text-gray-600 mb-2">This image will be displayed as the main product image and in the hero slider if selected.</p>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        {...register("featureImage", { required: "Feature image is required" })}
+                        onChange={handleFeatureImageChange}
+                        className="file-input file-input-bordered w-full"
+                    />
+                    {errors.featureImage && <p className="text-error text-sm mt-1">{errors.featureImage.message}</p>}
+
+                    {/* Feature Image Preview */}
+                    {featureImagePreview && (
+                        <div className="mt-4">
+                            <p className="col-span-full font-medium mb-2">Feature Image Preview:</p>
+                            <div className="w-48 h-48 mx-auto">
+                                <img
+                                    src={featureImagePreview}
+                                    alt="Feature image preview"
+                                    className="w-full h-full object-cover rounded-md border border-gray-300 shadow-sm"
+                                />
+                            </div>
+                        </div>
+                    )}
+                </fieldset>
+
+                {/* Hero Slider Checkbox */}
+                <fieldset className="fieldset">
+                    <label className="label cursor-pointer justify-start gap-4">
+                        <input
+                            type="checkbox"
+                            {...register("showInHeroSlider")}
+                            className="checkbox checkbox-primary"
+                        />
+                        <span className="label-text text-lg">Show in Hero Slider</span>
+                    </label>
+                    <p className="text-sm text-gray-600 mt-1">Check this to display the product in the homepage hero slider.</p>
+                </fieldset>
 
                 {/* Images Upload */}
                 <fieldset className="fieldset border p-4 rounded-lg border-primary/50">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useQuery } from '@tanstack/react-query';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 // =======================================================
 // 1. Theme Logic Simplification (REMOVED: useIsDarkMode hook)
@@ -8,16 +10,7 @@ import { FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 // =======================================================
 
 // =======================================================
-// 2. FEEDBACK DATA (Mock Data - Unchanged)
-// =======================================================
-const reviews = [
-    { id: 1, name: "Aisha Rahman (Buyer)", product: "Women's Sharee", feedback: "The tracking system is incredibly detailed! I knew exactly when my order went from sewing to QC. Fantastic visibility—never had to call customer service.", rating: 5, },
-    { id: 2, name: "Omar Khan (Buyer)", product: "Men's Panjabi Set", feedback: "Being able to see the production status was a game-changer. The final quality was perfect, and the delivery map was a great touch.", rating: 5, },
-    { id: 3, name: "Tanjila Akter (Manager)", product: "System Admin", feedback: "Approving and adding tracking milestones is intuitive. This centralized dashboard cut down our communication time with production by 40%. Highly effective tool.", rating: 4, },
-];
-
-// =======================================================
-// 3. FRAMER MOTION VARIANTS (Unchanged)
+// 2. FRAMER MOTION VARIANTS (Unchanged)
 // =======================================================
 const carouselVariants = {
     enter: (direction) => {
@@ -39,22 +32,53 @@ const carouselVariants = {
 // 4. COMPONENT (Using DaisyUI Classes)
 // =======================================================
 const Feedback = () => {
-    // Theme logic is now unnecessary; colors are handled by DaisyUI classes.
+    const axiosSecure = useAxiosSecure();
+    
+    // Fetch feedbacks from database
+    const { data: reviews = [] } = useQuery({
+        queryKey: ['feedbacks'],
+        queryFn: async () => {
+            const res = await axiosSecure.get('/feedbacks?limit=6');
+            console.log('Feedbacks from API:', res.data);
+            return res.data || [];
+        },
+    });
 
     const [[page, direction], setPage] = useState([0, 0]);
-    const reviewIndex = page % reviews.length;
+    const reviewIndex = reviews.length > 0 ? page % reviews.length : 0;
+
+    console.log('Current page:', page, 'reviewIndex:', reviewIndex, 'Current review:', reviews[reviewIndex]);
 
     const paginate = (newDirection) => {
         setPage([page + newDirection, newDirection]);
     };
 
     useEffect(() => {
+        if (reviews.length === 0) return;
+        
         const timer = setInterval(() => {
             paginate(1);
         }, 6000);
 
         return () => clearInterval(timer);
-    }, [page]);
+    }, [page, reviews.length]);
+
+    if (reviews.length === 0) {
+        return (
+            <section className="py-16 bg-base-200 transition-colors duration-500">
+                <div className="container mx-auto px-4">
+                    <div className="text-center">
+                        <h2 className="text-4xl font-extrabold mb-3 text-base-content">
+                            What Our Users Say
+                        </h2>
+                        <p className="text-xl text-base-content/70 mt-8">
+                            No feedback yet. Be the first to share your experience!
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         // bg-base-200 provides a slight contrast to the main background
@@ -88,18 +112,18 @@ const Feedback = () => {
 
                             {/* Feedback Text: text-base-content/70 for light, text-base-content for contrast */}
                             <p className="text-lg italic mb-4 text-base-content/80">
-                                "{reviews[reviewIndex].feedback}"
+                                "{reviews[reviewIndex].comment}"
                             </p>
 
                             {/* Author Info */}
                             <div className="mt-4 pt-4 border-t border-base-300">
                                 {/* Name: text-base-content */}
                                 <p className="font-bold text-base-content">
-                                    {reviews[reviewIndex].name}
+                                    {reviews[reviewIndex].userName || (reviews[reviewIndex]?.userEmail ? reviews[reviewIndex].userEmail.split('@')[0] : 'Anonymous')}
                                 </p>
                                 {/* Product: text-primary */}
                                 <p className="text-sm text-primary">
-                                    {reviews[reviewIndex].product}
+                                    {reviews[reviewIndex].productName}
                                 </p>
                                 {/* Star Rating (Static yellow is fine for stars) */}
                                 <div className="flex text-yellow-500 text-sm mt-1">

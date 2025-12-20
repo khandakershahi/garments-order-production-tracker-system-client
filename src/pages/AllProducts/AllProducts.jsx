@@ -125,7 +125,7 @@ const AllProducts = () => {
                             <div key={product._id} className="card bg-base-200 shadow-xl">
                                 <figure className="h-[500px] w-auto aspect-auto">
                                     <img
-                                        src={product.images?.[2]}
+                                        src={product.featureImage || product.images?.[0]}
                                         alt={product.title}
                                         className="w-full h-full object-cover"
                                     />
