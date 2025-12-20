@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from 'react-helmet-async';
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
@@ -20,8 +21,6 @@ const Login = () => {
   const { signInUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  console.log("in the login page", location);
 
   // Function to show a small success toast, now accepts a callback
   const showSuccessToast = (titleText, callback) => {
@@ -45,11 +44,8 @@ const Login = () => {
   }
 
   const handleLogin = (data) => {
-    console.log("form data", data);
     signInUser(data.email, data.password)
       .then((result) => {
-        console.log(result.user);
-
         // 3. Implement the success toast here
         showSuccessToast("Login Successful!", () => {
           // ⭐ Navigation is now INSIDE the callback function.
@@ -59,7 +55,6 @@ const Login = () => {
 
       })
       .catch((error) => {
-        console.log(error);
         // Add an error toast here for failed login attempts
         Swal.fire({
           icon: 'error',
@@ -72,6 +67,11 @@ const Login = () => {
 
 
   return (
+    <>
+      <Helmet>
+        <title>Login - Garments Order Tracker</title>
+      </Helmet>
+      <div className="flex items-center justify-center min-h-screen">
     <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
       <h3 className="text-3xl text-center py-3">Welcome Back!</h3>
       <p className="text-center">Please login</p>
@@ -118,6 +118,8 @@ const Login = () => {
       </form>
       <SocialLogin></SocialLogin>
     </div>
+  </div>
+    </>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FaEye, FaDollarSign, FaSearch } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
@@ -58,6 +59,10 @@ const AllProducts = () => {
 
     return (
         <section className="py-16 bg-base-100">
+            <Helmet>
+                <title>All Products - Garments Order Tracker</title>
+                <meta name="description" content="Browse our complete collection of garments products" />
+            </Helmet>
             <div className="container mx-auto px-4">
 
                 {/* HEADER */}

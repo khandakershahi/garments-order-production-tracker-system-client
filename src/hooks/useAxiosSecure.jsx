@@ -29,15 +29,11 @@ const useAxiosSecure = () => {
                 return response;
             },
             (error) => {
-                console.log("Axios Error:", error);
-
                 // ⭐ FIX: Access status code correctly from error.response.status ⭐
                 const statusCode = error.response?.status;
 
                 // Check for 401 (Unauthorized) or 403 (Forbidden)
                 if (statusCode === 401 || statusCode === 403) {
-                    console.log(`Unauthorized request detected (Status: ${statusCode}). Logging out...`);
-
                     // Use a clean logOut, ensuring we redirect AFTER state clearance
                     logOut().then(() => {
                         navigate("/login");

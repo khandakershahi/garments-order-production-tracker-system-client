@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from 'react-helmet-async';
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
 import { Link } from "react-router";
@@ -48,7 +49,6 @@ const Register = () => {
 
                     axiosSecure.post("/users", userInfo).then((res) => {
                         if (res.data.insertedId) {
-                            console.log("user created in database");
                             // You can add your success toast/sweet alert here
                         }
                     });
@@ -61,20 +61,22 @@ const Register = () => {
 
                     updateUserProfile(userProfile)
                         .then(() => {
-                            console.log("user profile update done");
                             navigate(location.state || "/");
                         })
                         .catch();
                 });
             })
             .catch((error) => {
-                console.log(error);
                 // You can add your error toast/sweet alert here
             });
     };
 
     return (
-        <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
+        <>
+            <Helmet>
+                <title>Register - Garments Order Tracker</title>
+            </Helmet>
+            <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
             <h3 className="text-3xl text-center py-3">Create an account</h3>
             <p className="text-center">Please Register</p>
             <div className="card-body">
@@ -172,6 +174,7 @@ const Register = () => {
                 <SocialLogin></SocialLogin>
             </div>
         </div>
+        </>
     );
 };
 

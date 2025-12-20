@@ -42,8 +42,6 @@ const SocialLogin = ({ showToast }) => {
                     };
 
                     axiosSecure.post("/users", userInfo).then((res) => {
-                        console.log("User data processed by server:", res.data);
-
                         // 2. Show toast with the delayed navigation callback
                         if (showToast) {
                             showToast(toastMessage, navigateCallback);
@@ -64,7 +62,6 @@ const SocialLogin = ({ showToast }) => {
                 }
             })
             .catch((error) => {
-                console.log(error);
                 // Handle social login error toast
                 Swal.fire({
                     icon: 'error',

@@ -169,7 +169,6 @@ const AddProduct = () => {
                     URL.revokeObjectURL(featureImagePreview);
                     setFeatureImagePreview(null);
                 }
-                console.log("Product added. Navigating to manage products page...");
 
             } else {
                 Swal.fire("Error", "Product creation failed on the server.", "error");

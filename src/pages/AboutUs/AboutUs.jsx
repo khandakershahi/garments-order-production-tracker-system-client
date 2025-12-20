@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FaAward, FaUsers, FaShippingFast, FaCheckCircle } from 'react-icons/fa';
 
@@ -35,6 +36,10 @@ const AboutUs = () => {
 
     return (
         <div className="min-h-screen bg-base-100">
+            <Helmet>
+                <title>About Us - Garments Order Tracker</title>
+                <meta name="description" content="Learn about our company, values, and commitment to quality garments production" />
+            </Helmet>
             {/* Hero Section */}
             <motion.section
                 initial={{ opacity: 0 }}

@@ -18,7 +18,7 @@ const AllOrdersAdmin = () => {
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold mb-6">All Orders (Admin)</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">All Orders (Admin)</h1>
             <div className="mb-4">
                 <select
                     value={statusFilter}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import useRole from '../../../hooks/useRole';
 import AdminDashboardHome from './AdminDashboardHome';
 import ManagerDashboardHome from './ManagerDashboardHome';
@@ -14,13 +15,16 @@ const DashboardHome = () => {
         </div>;
     }
 
-    if (role === 'admin') {
-        return <AdminDashboardHome />;
-    } else if (role === 'manager') {
-        return <ManagerDashboardHome />;
-    } else {
-        return <BuyerDashboardHome />;
-    }
+    return (
+        <>
+            <Helmet>
+                <title>Dashboard - Garments Order Tracker</title>
+            </Helmet>
+            {role === 'admin' && <AdminDashboardHome />}
+            {role === 'manager' && <ManagerDashboardHome />}
+            {role === 'buyer' && <BuyerDashboardHome />}
+        </>
+    );
 };
 
 export default DashboardHome;

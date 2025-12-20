@@ -17,7 +17,6 @@ const Navbar = () => {
     const handleLogout = () => {
         logOut()
             .then(() => {
-                console.log('User logged out');
                 navigate('/'); // <<< ADDED: Navigate to Home Page
             })
             .catch(error => console.error('Logout error:', error));

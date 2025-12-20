@@ -37,9 +37,9 @@ const ManagerDashboardHome = () => {
   // Calculate totals
   const totalApproved = approvedOrders.approved || 0;
   const totalInProduction = approvedOrders.inProduction || 0;
-  const totalCompleted = approvedOrders.completed || 0;
-  const totalInShipping = approvedOrders.inShipping || 0;
-  const totalOrders = totalApproved + totalInProduction + totalCompleted + totalInShipping;
+  const totalShipped = approvedOrders.shipped || 0;
+  const totalDelivered = approvedOrders.delivered || 0;
+  const totalOrders = totalApproved + totalInProduction + totalShipped + totalDelivered;
 
   const getPieChartData = (data) => {
     return data.map((item) => ({
@@ -73,7 +73,7 @@ const ManagerDashboardHome = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-4xl font-bold mb-6">Manager Dashboard</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">Manager Dashboard</h2>
 
       {/* Overview Stats */}
       <div className="mb-8">
@@ -118,9 +118,9 @@ const ManagerDashboardHome = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
-            <div className="stat-title">Completed</div>
-            <div className="stat-value text-success">{totalCompleted}</div>
-            <div className="stat-desc">Ready for delivery</div>
+            <div className="stat-title">Shipped</div>
+            <div className="stat-value text-success">{totalShipped}</div>
+            <div className="stat-desc">Out for delivery</div>
           </div>
 
           <div className="stat">
@@ -129,9 +129,9 @@ const ManagerDashboardHome = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
               </svg>
             </div>
-            <div className="stat-title">In Shipping</div>
-            <div className="stat-value text-warning">{totalInShipping}</div>
-            <div className="stat-desc">Out for delivery</div>
+            <div className="stat-title">Delivered</div>
+            <div className="stat-value text-warning">{totalDelivered}</div>
+            <div className="stat-desc">Successfully completed</div>
           </div>
         </div>
       </div>
@@ -187,8 +187,8 @@ const ManagerDashboardHome = () => {
               <BarChart data={[
                 { name: 'Approved', value: totalApproved },
                 { name: 'In Production', value: totalInProduction },
-                { name: 'Completed', value: totalCompleted },
-                { name: 'In Shipping', value: totalInShipping }
+                { name: 'Shipped', value: totalShipped },
+                { name: 'Delivered', value: totalDelivered }
               ]}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />

@@ -9,7 +9,6 @@ const MyOrders = () => {
     const axiosSecure = useAxiosSecure();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [viewOrder, setViewOrder] = useState(null);
     const [cancelOrder, setCancelOrder] = useState(null);
 
     useEffect(() => {
@@ -62,9 +61,19 @@ const MyOrders = () => {
         return new Date(d).toLocaleString();
     };
 
+    // Format payment status for buyer view (hide internal statuses)
+    const formatPaymentStatus = (order) => {
+        const payment = order.paymentStatus || order.paymentOption || 'N/A';
+        // Hide 'Withdrawn' from buyers - this is internal status
+        if (payment.toLowerCase().includes('withdrawn')) {
+            return 'Paid';
+        }
+        return payment;
+    };
+
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-semibold mb-4">My Orders</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">My Orders</h2>
 
             {loading && <div>Loading...</div>}
 
@@ -95,7 +104,7 @@ const MyOrders = () => {
                                     <td>{order.productTitle || order.productName || order.product}</td>
                                     <td>{order.orderQuantity}</td>
                                     <td>{order.orderStatus}</td>
-                                    <td>{order.paymentStatus || order.paymentOption || 'N/A'}</td>
+                                    <td>{formatPaymentStatus(order)}</td>
                                     <td>
                                         <Link
                                             to={`/dashboard/track-order/${order._id}`}
@@ -110,13 +119,6 @@ const MyOrders = () => {
                                         </span>
                                     </td>
                                     <td>
-                                        <button
-                                            className="btn btn-sm btn-ghost mr-2"
-                                            onClick={() => setViewOrder(order)}
-                                        >
-                                            View
-                                        </button>
-
                                         <Link
                                             to={`/dashboard/track-order/${order._id}`}
                                             className="btn btn-sm btn-info mr-2"
@@ -133,8 +135,10 @@ const MyOrders = () => {
                                             </button>
                                         )}
 
-                                        {/* Show Pay button when manager approved and not paid yet */}
-                                        {order.orderStatus === 'Approved' && !((order.paymentStatus || '').toString().toLowerCase().includes('paid')) && (
+                                        {/* Show Pay button when manager approved and not paid/withdrawn yet */}
+                                        {order.orderStatus === 'Approved' && 
+                                         !((order.paymentStatus || '').toString().toLowerCase().includes('paid')) && 
+                                         !((order.paymentStatus || '').toString().toLowerCase().includes('withdrawn')) && (
                                             <button
                                                 className="btn btn-sm btn-primary ml-2"
                                                 onClick={() => handlePay(order)}
@@ -149,39 +153,6 @@ const MyOrders = () => {
                     </table>
                 </div>
             )}
-
-            {/* View Modal */}
-            <div className={viewOrder ? 'modal modal-open' : 'modal'}>
-                <div className="modal-box w-11/12 max-w-3xl">
-                    <h3 className="font-bold text-lg">Order Details</h3>
-                    {viewOrder ? (
-                        <div className="mt-4">
-                            <p><strong>Order ID:</strong> {String(viewOrder._id)}</p>
-                            <p><strong>Product:</strong> {viewOrder.productTitle || viewOrder.productName}</p>
-                            <p><strong>Quantity:</strong> {viewOrder.orderQuantity}</p>
-                            <p><strong>Ordered At:</strong> {formatDate(viewOrder.orderDate)}</p>
-                            <p><strong>Status:</strong> {viewOrder.orderStatus}</p>
-                            <p><strong>Payment:</strong> {viewOrder.paymentStatus || viewOrder.paymentOption}</p>
-
-                            <div className="mt-6">
-                                <h4 className="font-semibold">Tracking Timeline</h4>
-                                <ul className="steps steps-vertical mt-2">
-                                    <li className={`step ${viewOrder.orderStatus === 'Pending' ? 'step-primary' : ''}`}>Placed ({formatDate(viewOrder.orderDate)})</li>
-                                    <li className={`step ${viewOrder.orderStatus === 'Approved' ? 'step-primary' : ''}`}>Approved</li>
-                                    <li className={`step ${viewOrder.orderStatus === 'In Production' ? 'step-primary' : ''}`}>In Production</li>
-                                    <li className={`step ${viewOrder.orderStatus === 'Shipped' ? 'step-primary' : ''}`}>Shipped</li>
-                                    <li className={`step ${viewOrder.orderStatus === 'Delivered' ? 'step-primary' : ''}`}>Delivered</li>
-                                    <li className={`step ${viewOrder.orderStatus === 'Cancelled' ? 'step-error' : ''}`}>Cancelled</li>
-                                </ul>
-                            </div>
-                        </div>
-                    ) : null}
-
-                    <div className="modal-action">
-                        <button className="btn" onClick={() => setViewOrder(null)}>Close</button>
-                    </div>
-                </div>
-            </div>
 
             {/* Cancel Confirmation Modal */}
             <div className={cancelOrder ? 'modal modal-open' : 'modal'}>

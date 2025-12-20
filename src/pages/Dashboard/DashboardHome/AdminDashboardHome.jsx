@@ -56,7 +56,7 @@ const AdminDashboardHome = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-4xl font-bold mb-6">Admin Dashboard</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h2>
 
       {/* Overview Stats */}
       <div className="mb-8">

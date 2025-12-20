@@ -9,6 +9,7 @@ import AboutUs from "../pages/AboutUs/AboutUs";
 import Contact from "../pages/Contact/Contact";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import DashboardHome from "../pages/Dashboard/DashboardHome/DashboardHome";
+import NotFound from "../pages/NotFound/NotFound";
 
 // ⭐ NEW Import: Product Details Page ⭐
 
@@ -187,4 +188,9 @@ export const router = createBrowserRouter([
       }
     ]
   },
+  // 404 Not Found Route - Must be last
+  {
+    path: '*',
+    Component: NotFound,
+  }
 ]);

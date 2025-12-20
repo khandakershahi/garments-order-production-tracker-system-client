@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaPaperPlane } from 'react-icons/fa';
 import Swal from 'sweetalert2';
@@ -74,6 +75,10 @@ const Contact = () => {
 
     return (
         <div className="min-h-screen bg-base-100">
+            <Helmet>
+                <title>Contact Us - Garments Order Tracker</title>
+                <meta name="description" content="Get in touch with us for inquiries about garments orders and production" />
+            </Helmet>
             {/* Hero Section */}
             <motion.section
                 initial={{ opacity: 0 }}

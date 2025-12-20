@@ -126,7 +126,7 @@ const ApprovedOrders = () => {
 
     return (
         <div>
-            <h1 className="text-2xl font-semibold mb-4">Approved Orders</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">Approved Orders</h1>
             
             {/* Suspend Alert */}
             {userData?.status === 'suspended' && (

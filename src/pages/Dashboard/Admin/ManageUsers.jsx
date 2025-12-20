@@ -5,17 +5,25 @@ import { useQuery } from '@tanstack/react-query';
 import { FaUserShield, FaUserTie, FaUser, FaCheckCircle, FaBan, FaUnlock } from 'react-icons/fa';
 import { FiShieldOff } from 'react-icons/fi';
 
+const ITEMS_PER_PAGE = 5;
+
 const ManageUsers = () => {
     const axiosSecure = useAxiosSecure();
     const [searchText, setSearchText] = useState("");
+    const [page, setPage] = useState(1);
 
-    const { refetch, data: users = [] } = useQuery({
-        queryKey: ["user", searchText],
+    const { refetch, data } = useQuery({
+        queryKey: ["user", searchText, page],
         queryFn: async () => {
-            const res = await axiosSecure.get(`/users?searchText=${searchText}`);
+            const res = await axiosSecure.get(`/users?searchText=${searchText}&page=${page}&limit=${ITEMS_PER_PAGE}`);
             return res.data;
         },
+        keepPreviousData: true,
     });
+
+    const users = data?.users || [];
+    const totalCount = data?.totalCount || 0;
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
     // Suspend User with Reason and Feedback
     const handleSuspendUser = async (user) => {
@@ -168,7 +176,7 @@ const ManageUsers = () => {
 
     return (
         <div className="bg-base-100 min-h-screen p-6">
-            <h2 className="text-3xl font-bold text-base-content mb-4">Manage Users: {users.length}</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">Manage Users: {totalCount}</h2>
             
             {/* Search Input */}
             <label className="input input-bordered bg-base-200 flex items-center gap-2 max-w-md mb-6">
@@ -189,7 +197,10 @@ const ManageUsers = () => {
                     </g>
                 </svg>
                 <input
-                    onChange={(e) => setSearchText(e.target.value)}
+                    onChange={(e) => {
+                        setSearchText(e.target.value);
+                        setPage(1);
+                    }}
                     type="search"
                     className="grow bg-transparent text-base-content"
                     placeholder="Search users"
@@ -319,6 +330,31 @@ const ManageUsers = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* PAGINATION */}
+            {totalPages > 1 && (
+                <div className="flex justify-center gap-4 mt-8">
+                    <button
+                        className="btn btn-outline"
+                        disabled={page === 1}
+                        onClick={() => setPage((p) => p - 1)}
+                    >
+                        Previous
+                    </button>
+
+                    <span className="btn btn-ghost cursor-default">
+                        Page {page} of {totalPages}
+                    </span>
+
+                    <button
+                        className="btn btn-outline"
+                        disabled={page === totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -127,7 +128,6 @@ const ProductDetails = () => {
         try {
                         // Fallback to email username if displayName is not set
                         const userName = user.displayName || user.email?.split('@')[0] || 'Anonymous';
-                        console.log('User data:', { displayName: user.displayName, email: user.email, userName });
             
             const feedback = {
                 productId: product._id,
@@ -160,13 +160,18 @@ const ProductDetails = () => {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            // ⭐ FIX: Changed bg-white to theme-aware bg-base-100 ⭐
-            className="container mx-auto px-4 py-12 bg-base-100 shadow-xl rounded-xl my-4"
-        >
+        <>
+            <Helmet>
+                <title>{product?.productName ? `${product.productName} - Product Details` : 'Product Details'} | Garments Order Tracker</title>
+                <meta name="description" content={product?.description || 'View product details and place your order'} />
+            </Helmet>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                // ⭐ FIX: Changed bg-white to theme-aware bg-base-100 ⭐
+                className="container mx-auto px-4 py-12 bg-base-100 shadow-xl rounded-xl my-4"
+            >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
                 {/* ================= IMAGE GALLERY ================= */}
@@ -412,6 +417,7 @@ const ProductDetails = () => {
                 isUser={isUser}
             />
         </motion.div>
+        </>
     );
 };
 export default ProductDetails;
