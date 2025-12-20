@@ -48,6 +48,16 @@ const ProductDetails = () => {
         }
     });
 
+    // Fetch current user data to check suspend status
+    const { data: userData = null } = useQuery({
+        queryKey: ['user-data', user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/${user.email}/role`);
+            return res.data;
+        }
+    });
+
     // Fetch feedbacks for this product
     const {
         data: productFeedbacks = [],
@@ -93,9 +103,12 @@ const ProductDetails = () => {
 
     const getButtonMessage = () => {
         if (!user) return 'Log In to Order';
+        if (userData?.status === 'suspended') return 'Account Suspended - Cannot Order';
         if (role === 'admin' || role === 'manager') return 'Admins/Managers Cannot Order';
         return 'Order Now / Book';
     };
+
+    const isOrderButtonDisabled = !user || !isUser || userData?.status === 'suspended';
 
     const handleFeedbackSubmit = async (e) => {
         e.preventDefault();
@@ -234,13 +247,13 @@ const ProductDetails = () => {
                     </div>
 
                     <button
-                        className={`btn btn-lg w-full shadow-xl transition-transform ${isUser ? 'btn-secondary hover:scale-[1.01]' : 'btn-disabled'
+                        className={`btn btn-lg w-full shadow-xl transition-transform ${!isOrderButtonDisabled ? 'btn-secondary hover:scale-[1.01]' : 'btn-disabled'
                             }`}
-                        onClick={() => isUser && setIsModalOpen(true)}
-                        disabled={!isUser}
+                        onClick={() => !isOrderButtonDisabled && setIsModalOpen(true)}
+                        disabled={isOrderButtonDisabled}
                         title={getButtonMessage()}
                     >
-                        {isUser ? <FaShoppingBag /> : <FaBan />}
+                        {!isOrderButtonDisabled ? <FaShoppingBag /> : <FaBan />}
                         {getButtonMessage()}
                     </button>
 

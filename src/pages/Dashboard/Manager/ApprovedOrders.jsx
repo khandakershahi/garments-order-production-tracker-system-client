@@ -1,9 +1,11 @@
 import React from 'react';
+import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 
 const ApprovedOrders = () => {
+    const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
 
     const { data: orders = [], isLoading, refetch } = useQuery({
@@ -14,7 +16,21 @@ const ApprovedOrders = () => {
         },
     });
 
+    // Fetch user data to check suspend status
+    const { data: userData = null } = useQuery({
+        queryKey: ['user-suspend-check', user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/${user.email}/role`);
+            return res.data;
+        }
+    });
+
     const handleDeliveryStatusUpdate = async (orderId, deliveryStatus) => {
+        if (userData?.status === 'suspended') {
+            Swal.fire('Error', 'Your account is suspended. Cannot update delivery status.', 'error');
+            return;
+        }
         try {
             await axiosSecure.patch(`/orders/${orderId}/delivery-status`, { deliveryStatus });
             refetch(); // Refresh the data
@@ -52,6 +68,17 @@ const ApprovedOrders = () => {
     return (
         <div>
             <h1 className="text-2xl font-semibold mb-4">Approved Orders</h1>
+            
+            {/* Suspend Alert */}
+            {userData?.status === 'suspended' && (
+                <div className="alert alert-warning shadow-lg mb-4">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <span>Account suspended - You cannot modify orders or update delivery status.</span>
+                    </div>
+                </div>
+            )}
+            
             <div className="overflow-x-auto">
                 <table className="table table-zebra w-full">
                     <thead>

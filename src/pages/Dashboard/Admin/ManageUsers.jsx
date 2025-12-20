@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
-import { FaUserShield, FaUserTie, FaUser, FaCheckCircle } from 'react-icons/fa';
-import { FiShieldOff } from 'react-icons/fi'; // Assuming you have an appropriate icon for demotion
+import { FaUserShield, FaUserTie, FaUser, FaCheckCircle, FaBan, FaUnlock } from 'react-icons/fa';
+import { FiShieldOff } from 'react-icons/fi';
 
 const ManageUsers = () => {
     const axiosSecure = useAxiosSecure();
-
     const [searchText, setSearchText] = useState("");
 
     const { refetch, data: users = [] } = useQuery({
@@ -17,6 +16,95 @@ const ManageUsers = () => {
             return res.data;
         },
     });
+
+    // Suspend User with Reason and Feedback
+    const handleSuspendUser = async (user) => {
+        const { value: formValues } = await Swal.fire({
+            title: `Suspend ${user.name}?`,
+            html: `
+                <div class="text-left space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Suspend Reason:</label>
+                        <input id="swal-reason" class="swal2-input w-full" placeholder="e.g., Policy violation">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Feedback/Details:</label>
+                        <textarea id="swal-feedback" class="swal2-textarea w-full" rows="4" placeholder="Explain why this user is being suspended..."></textarea>
+                    </div>
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Suspend User",
+            preConfirm: () => {
+                const reason = document.getElementById('swal-reason').value;
+                const feedback = document.getElementById('swal-feedback').value;
+                
+                if (!reason || !feedback) {
+                    Swal.showValidationMessage('Both reason and feedback are required');
+                    return false;
+                }
+                
+                return { reason, feedback };
+            }
+        });
+
+        if (formValues) {
+            try {
+                const res = await axiosSecure.patch(`/users/${user._id}/suspend`, {
+                    suspendReason: formValues.reason,
+                    suspendFeedback: formValues.feedback
+                });
+
+                if (res.data.modifiedCount) {
+                    refetch();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'User Suspended',
+                        text: `${user.name} has been suspended successfully.`,
+                        timer: 2500
+                    });
+                }
+            } catch (error) {
+                console.error("Error suspending user:", error);
+                Swal.fire("Error", "Failed to suspend user.", "error");
+            }
+        }
+    };
+
+    // Unsuspend User
+    const handleUnsuspendUser = (user) => {
+        Swal.fire({
+            title: `Unsuspend ${user.name}?`,
+            text: "This will restore user access and remove suspend feedback.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Unsuspend"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await axiosSecure.patch(`/users/${user._id}/unsuspend`);
+                    
+                    if (res.data.modifiedCount) {
+                        refetch();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'User Unsuspended',
+                            text: `${user.name} is now active.`,
+                            timer: 2500
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error unsuspending user:", error);
+                    Swal.fire("Error", "Failed to unsuspend user.", "error");
+                }
+            }
+        });
+    };
 
     // Helper function for Role/Status Update with Confirmation (Based on our previous discussion)
     const updateRoleAndStatus = (user, newRole, newStatus, successMessage) => {
@@ -157,15 +245,19 @@ const ManageUsers = () => {
                                 <td>
                                     {user.status && (
                                         <span
-                                            className={`badge badge-sm ${user.status === 'active' ? 'badge-success' : 'badge-warning'} font-bold text-white`}
+                                            className={`badge badge-sm ${
+                                                user.status === 'active' ? 'badge-success' : 
+                                                user.status === 'suspended' ? 'badge-error' : 
+                                                'badge-warning'
+                                            } font-bold text-white`}
                                         >
                                             {user.status.toUpperCase()}
                                         </span>
                                     )}
                                 </td>
 
-                                {/* 3. ACTIONS COLUMN (Consolidated) */}
-                                <td className="flex gap-2">
+                                {/* 3. ACTIONS COLUMN */}
+                                <td className="flex gap-2 flex-wrap">
                                     {/* APPROVE/ACTIVATE BUTTON (Visible only if PENDING) */}
                                     {user.status === "pending" && (
                                         <button
@@ -177,20 +269,42 @@ const ManageUsers = () => {
                                         </button>
                                     )}
 
-                                    {/* MAKE ADMIN Button (Visible if NOT Admin) */}
-                                    {user.role !== "admin" && (
+                                    {/* SUSPEND BUTTON (Visible if Active) */}
+                                    {user.status === "active" && (
+                                        <button
+                                            onClick={() => handleSuspendUser(user)}
+                                            className="btn btn-sm bg-red-500 text-white"
+                                            title="Suspend User"
+                                        >
+                                            <FaBan /> Suspend
+                                        </button>
+                                    )}
+
+                                    {/* UNSUSPEND BUTTON (Visible if Suspended) */}
+                                    {user.status === "suspended" && (
+                                        <button
+                                            onClick={() => handleUnsuspendUser(user)}
+                                            className="btn btn-sm bg-green-500 text-white"
+                                            title="Unsuspend User"
+                                        >
+                                            <FaUnlock /> Unsuspend
+                                        </button>
+                                    )}
+
+                                    {/* MAKE ADMIN Button (Visible if NOT Admin and Not Suspended) */}
+                                    {user.role !== "admin" && user.status !== "suspended" && (
                                         <button
                                             onClick={() => handleMakeAdmin(user)}
                                             className="btn btn-sm bg-green-400"
                                             title="Make Admin"
-                                            disabled={user.status === "pending"} // Disable promotion while pending
+                                            disabled={user.status === "pending"}
                                         >
                                             <FaUserShield />
                                         </button>
                                     )}
 
-                                    {/* DEMOTE Button (Visible if Admin/Manager) */}
-                                    {user.role !== "buyer" && (
+                                    {/* DEMOTE Button (Visible if Admin/Manager and Not Suspended) */}
+                                    {user.role !== "buyer" && user.status !== "suspended" && (
                                         <button
                                             onClick={() => handleDemoteToBuyer(user)}
                                             className="btn btn-sm bg-red-400"
@@ -199,7 +313,6 @@ const ManageUsers = () => {
                                             <FiShieldOff />
                                         </button>
                                     )}
-
                                 </td>
                             </tr>
                         ))}

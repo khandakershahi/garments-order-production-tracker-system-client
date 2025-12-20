@@ -1,6 +1,8 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import useAuth from '../../../hooks/useAuth';
 import useRole from '../../../hooks/useRole';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import Loading from '../../../components/Loading/Loading';
 
 // --- 1. Helper Component to display role-specific text (DEFINED OUTSIDE) ---
@@ -42,9 +44,20 @@ const UserProfile = () => {
     // 1. Get Authentication and Role Data
     const { user, loading: authLoading } = useAuth();
     const { role, roleLoading } = useRole();
+    const axiosSecure = useAxiosSecure();
+
+    // Fetch user data including suspend status
+    const { data: userData = null, isLoading: userDataLoading } = useQuery({
+        queryKey: ['user-profile-data', user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/${user.email}/role`);
+            return res.data;
+        }
+    });
 
     // 2. Handle Loading State
-    if (authLoading || roleLoading) {
+    if (authLoading || roleLoading || userDataLoading) {
         return <Loading />;
     }
 
@@ -91,6 +104,24 @@ const UserProfile = () => {
 
                 {/* Role Specific Content (Pass the 'role' as a prop) */}
                 <RoleSpecificContent role={role} />
+
+                {/* Suspend Feedback Display */}
+                {userData?.status === 'suspended' && userData?.suspendFeedback && (
+                    <div className="alert alert-error mt-6 w-full shadow-lg">
+                        <div className="flex-col items-start w-full">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                Account Suspended
+                            </h3>
+                            <div className="mt-3 w-full">
+                                <p className="font-semibold">Reason: <span className="font-normal">{userData.suspendReason}</span></p>
+                                <p className="font-semibold mt-2">Details:</p>
+                                <p className="font-normal bg-base-100 p-3 rounded mt-1">{userData.suspendFeedback}</p>
+                                <p className="text-sm mt-2 opacity-70">Suspended on: {new Date(userData.suspendedAt).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Profile Update Button (Global) */}
                 <button

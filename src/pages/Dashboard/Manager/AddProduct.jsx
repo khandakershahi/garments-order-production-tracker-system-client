@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from '@tanstack/react-query';
 import Swal from "sweetalert2";
+import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import axios from "axios";
+import Loading from '../../../components/Loading/Loading';
 
 // Mock data remains the same
 const PRODUCT_CATEGORIES = ["Shirt", "Pant", "Jacket", "Panjabi", "Sharee", "Three Piece", "Kurti", "Others"];
@@ -18,12 +21,43 @@ const AddProduct = () => {
         formState: { errors },
     } = useForm();
 
+    const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
     const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_image_host_key}`;
 
     const [imagePreviews, setImagePreviews] = useState([]);
     const [featureImagePreview, setFeatureImagePreview] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Fetch user data to check suspend status
+    const { data: userData = null, isLoading: userDataLoading } = useQuery({
+        queryKey: ['user-suspend-check', user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/${user.email}/role`);
+            return res.data;
+        }
+    });
+
+    // Show loading while checking user status
+    if (userDataLoading) {
+        return <Loading />;
+    }
+
+    // Fetch user data to check suspend status
+    const { data: userData = null, isLoading: userDataLoading } = useQuery({
+        queryKey: ['user-suspend-check', user?.email],
+        enabled: !!user?.email,
+        queryFn: async () => {
+            const res = await axiosSecure.get(`/users/${user.email}/role`);
+            return res.data;
+        }
+    });
+
+    // Show loading while checking user status
+    if (userDataLoading) {
+        return <Loading />;
+    }
 
     // Helper function to clean up preview URLs (memory management)
     const cleanupImagePreviews = (urls) => {
@@ -169,6 +203,22 @@ const AddProduct = () => {
             <h2 className="text-4xl font-bold text-center mb-10 text-primary">
                 Add New Product (Manager Access)
             </h2>
+
+            {/* Suspend Alert */}
+            {userData?.status === 'suspended' && (
+                <div className="alert alert-error shadow-lg mb-6">
+                    <div className="flex-col items-start w-full">
+                        <h3 className="font-bold text-lg flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Account Suspended - Cannot Add Products
+                        </h3>
+                        <div className="mt-2">
+                            <p className="font-semibold">Reason: <span className="font-normal">{userData.suspendReason}</span></p>
+                            <p className="text-sm mt-1">Contact admin to resolve this issue.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Overlay Loader */}
             {isUploading && (
@@ -397,7 +447,7 @@ const AddProduct = () => {
                     type="submit"
                     value={isUploading ? "Adding Product..." : "Add Product"}
                     className="btn btn-primary text-white w-fit mt-8 text-xl px-10"
-                    disabled={isUploading}
+                    disabled={isUploading || userData?.status === 'suspended'}
                 />
             </form>
         </div>
