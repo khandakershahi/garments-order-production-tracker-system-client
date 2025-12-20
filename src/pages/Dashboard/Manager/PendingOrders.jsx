@@ -4,7 +4,7 @@ import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
 
-const OrderRow = ({ order, index, onApprove, approvingId, isSuspended }) => (
+const OrderRow = ({ order, index, onApprove, onReject, approvingId, rejectingId, isSuspended }) => (
     <tr>
         <td>{index + 1}</td>
         <td>{order.productTitle || order.productName}</td>
@@ -13,13 +13,22 @@ const OrderRow = ({ order, index, onApprove, approvingId, isSuspended }) => (
         <td>{order.orderStatus}</td>
         <td>{order.paymentStatus || order.paymentOption}</td>
         <td>
-            <button
-                className="btn btn-sm btn-primary"
-                onClick={() => onApprove(order._id)}
-                disabled={order.orderStatus !== 'Pending' || approvingId === order._id || isSuspended}
-            >
-                {approvingId === order._id ? 'Approving...' : 'Approve'}
-            </button>
+            <div className="flex gap-2">
+                <button
+                    className="btn btn-sm btn-success"
+                    onClick={() => onApprove(order._id)}
+                    disabled={order.orderStatus !== 'Pending' || approvingId === order._id || rejectingId === order._id || isSuspended}
+                >
+                    {approvingId === order._id ? 'Approving...' : 'Approve'}
+                </button>
+                <button
+                    className="btn btn-sm btn-error"
+                    onClick={() => onReject(order._id)}
+                    disabled={order.orderStatus !== 'Pending' || approvingId === order._id || rejectingId === order._id || isSuspended}
+                >
+                    {rejectingId === order._id ? 'Rejecting...' : 'Reject'}
+                </button>
+            </div>
         </td>
     </tr>
 );
@@ -28,6 +37,7 @@ const PendingOrders = () => {
     const { user } = useAuth();
     const axiosSecure = useAxiosSecure();
     const [approvingId, setApprovingId] = useState(null);
+    const [rejectingId, setRejectingId] = useState(null);
 
     const { data: orders = [], isLoading, refetch } = useQuery({
         queryKey: ['manager-pending-orders'],
@@ -58,12 +68,48 @@ const PendingOrders = () => {
             if (res?.data?.modifiedCount) {
                 // refresh the list
                 refetch();
+                Swal.fire('Success', 'Order approved successfully!', 'success');
             }
         } catch (err) {
             console.error('Approve failed', err);
             Swal.fire('Error', err.response?.data?.message || 'Failed to approve order', 'error');
         } finally {
             setApprovingId(null);
+        }
+    };
+
+    const handleReject = async (orderId) => {
+        if (userData?.status === 'suspended') {
+            Swal.fire('Error', 'Your account is suspended. Cannot reject orders.', 'error');
+            return;
+        }
+
+        // Show confirmation dialog before rejecting
+        const result = await Swal.fire({
+            title: 'Reject Order?',
+            text: 'Are you sure you want to reject this order? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, Reject it!'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            setRejectingId(orderId);
+            const res = await axiosSecure.patch(`/orders/${orderId}/reject`);
+            if (res?.data?.modifiedCount) {
+                // refresh the list
+                refetch();
+                Swal.fire('Rejected', 'Order has been rejected.', 'success');
+            }
+        } catch (err) {
+            console.error('Reject failed', err);
+            Swal.fire('Error', err.response?.data?.message || 'Failed to reject order', 'error');
+        } finally {
+            setRejectingId(null);
         }
     };
 
@@ -93,7 +139,7 @@ const PendingOrders = () => {
                             <th>Quantity</th>
                             <th>Status</th>
                             <th>Payment</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,8 +153,10 @@ const PendingOrders = () => {
                                 key={order._id} 
                                 order={order} 
                                 index={idx} 
-                                onApprove={handleApprove} 
+                                onApprove={handleApprove}
+                                onReject={handleReject}
                                 approvingId={approvingId}
+                                rejectingId={rejectingId}
                                 isSuspended={userData?.status === 'suspended'}
                             />
                         ))}
