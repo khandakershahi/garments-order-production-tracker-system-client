@@ -124,13 +124,38 @@ const ApprovedOrders = () => {
                                     </select>
                                 </td>
                                 <td>
-                                    {order.deliveryStatus === 'delivered' && order.paymentStatus && order.paymentStatus.includes('Paid') && (
+                                    {/* Show Withdrawn Status */}
+                                    {(order.paymentStatus === 'Withdrawn' || order.paymentStatus?.includes('Withdrawn')) && (
+                                        <span className="badge badge-success gap-2">
+                                            ✓ Payment Withdrawn
+                                        </span>
+                                    )}
+                                    
+                                    {/* Show Withdraw Button when ready */}
+                                    {order.deliveryStatus === 'delivered' && 
+                                     order.paymentStatus && 
+                                     order.paymentStatus.includes('Paid') && 
+                                     !order.paymentStatus.includes('Withdrawn') && (
                                         <button
                                             className="btn btn-success btn-sm"
                                             onClick={() => handleWithdrawPayment(order._id)}
                                         >
                                             Withdraw Payment
                                         </button>
+                                    )}
+                                    
+                                    {/* Show Not Ready status */}
+                                    {order.deliveryStatus !== 'delivered' && (
+                                        <span className="badge badge-warning gap-2">
+                                            Pending Delivery
+                                        </span>
+                                    )}
+                                    
+                                    {order.deliveryStatus === 'delivered' && 
+                                     (!order.paymentStatus || !order.paymentStatus.includes('Paid')) && (
+                                        <span className="badge badge-error gap-2">
+                                            Payment Pending
+                                        </span>
                                     )}
                                 </td>
                             </tr>

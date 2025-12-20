@@ -196,7 +196,7 @@ const ManageProducts = () => {
                                         <div className="avatar">
                                             <div className="mask mask-squircle w-12 h-12 aspect-auto">
                                                 {/* Use the first image for the thumbnail */}
-                                                <img src={product.images?.[2] || 'placeholder-image-url'} alt={`Image of ${product.title}`} />
+                                                <img src={product.featureImage || 'placeholder-image-url'} alt={`Image of ${product.title}`} />
                                             </div>
                                         </div>
                                     </td>

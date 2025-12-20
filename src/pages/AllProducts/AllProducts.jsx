@@ -123,13 +123,13 @@ const AllProducts = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {products.map(product => (
                             <div key={product._id} className="card bg-base-200 shadow-xl">
-                                <figure className="h-[500px] w-auto aspect-auto">
-                                    <img
-                                        src={product.featureImage || product.images?.[0]}
-                                        alt={product.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </figure>
+                                <figure className="h-[500px] w-auto aspect-auto overflow-hidden">
+                                <img
+                                    src={product.featureImage || 'placeholder-image-url'}
+                                    alt={product.title}
+                                    className="object-cover w-full h-full aspect-square"
+                                />
+                            </figure>
 
                                 <div className="card-body">
                                     <h2 className="card-title">{product.title}</h2>

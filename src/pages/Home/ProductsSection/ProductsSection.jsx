@@ -28,7 +28,7 @@ const ProductsSection = () => {
     } = useQuery({
         queryKey: ["featured-products"],
         queryFn: async () => {
-            const res = await axiosSecure.get('/products?limit=6');
+            const res = await axiosSecure.get('/products?limit=6&showOnHomePage=true');
             return res.data;
         },
     });
@@ -91,7 +91,7 @@ const ProductsSection = () => {
                         >
                             <figure className="h-[500px] w-auto aspect-auto overflow-hidden">
                                 <img
-                                    src={product.images?.[2] || 'placeholder-image-url'}
+                                    src={product.featureImage || 'placeholder-image-url'}
                                     alt={product.title}
                                     className="object-cover w-full h-full aspect-square"
                                 />
