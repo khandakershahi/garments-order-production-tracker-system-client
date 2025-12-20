@@ -2,37 +2,75 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 const BuyerDashboardHome = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
-  const { data: myOrders = [] } = useQuery({
-    queryKey: ["my-orders-stats", user?.email],
+  // Fetch user's orders
+  const { data: myOrders = [], isLoading: ordersLoading, isError: ordersError } = useQuery({
+    queryKey: ["my-orders", user?.email],
     queryFn: async () => {
+      if (!user?.email) return [];
       const res = await axiosSecure.get(`/orders?email=${encodeURIComponent(user.email)}`);
       return res.data || [];
     },
+    enabled: !!user?.email,
+    retry: 1,
   });
 
-  const { data: orderStats = {} } = useQuery({
+  // Fetch order statistics
+  const { data: orderStats = {}, isLoading: statsLoading, isError: statsError } = useQuery({
     queryKey: ["buyer-order-stats", user?.email],
     queryFn: async () => {
+      if (!user?.email) return {};
       const res = await axiosSecure.get(`/orders/stats?email=${encodeURIComponent(user.email)}`);
       return res.data || {};
     },
+    enabled: !!user?.email,
+    retry: 1,
   });
 
-  // Prepare data for chart
+  // Calculate totals
+  const totalOrders = myOrders.length;
+  const pendingCount = orderStats.pending || 0;
+  const approvedCount = orderStats.approved || 0;
+  const inProductionCount = orderStats.inProduction || 0;
+  const shippedCount = orderStats.shipped || 0;
+  const deliveredCount = orderStats.delivered || 0;
+  const cancelledCount = orderStats.cancelled || 0;
+
+  // Prepare chart data with colors
   const statusData = [
-    { name: 'Pending', count: orderStats.pending || 0 },
-    { name: 'Approved', count: orderStats.approved || 0 },
-    { name: 'In Production', count: orderStats.inProduction || 0 },
-    { name: 'Shipped', count: orderStats.shipped || 0 },
-    { name: 'Delivered', count: orderStats.delivered || 0 },
-    { name: 'Cancelled', count: orderStats.cancelled || 0 },
-  ];
+    { name: 'Pending', count: pendingCount, color: '#fbbf24' },
+    { name: 'Approved', count: approvedCount, color: '#10b981' },
+    { name: 'In Production', count: inProductionCount, color: '#3b82f6' },
+    { name: 'Shipped', count: shippedCount, color: '#8b5cf6' },
+    { name: 'Delivered', count: deliveredCount, color: '#059669' },
+    { name: 'Cancelled', count: cancelledCount, color: '#ef4444' },
+  ].filter(item => item.count > 0);
+
+  // Recent orders (last 5)
+  const recentOrders = myOrders.slice(0, 5);
+
+  if (ordersLoading || statsLoading) {
+    return (
+      <div className="p-6 flex justify-center items-center min-h-screen">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
+
+  if (ordersError || statsError) {
+    return (
+      <div className="p-6">
+        <div className="alert alert-error">
+          <span>Error loading dashboard data. Please try refreshing the page.</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -41,7 +79,7 @@ const BuyerDashboardHome = () => {
       {/* Quick Stats */}
       <div className="mb-8">
         <h3 className="text-2xl font-semibold mb-4">Order Summary</h3>
-        <div className="stats shadow w-full">
+        <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
           <div className="stat">
             <div className="stat-figure text-primary">
               <svg
@@ -59,12 +97,12 @@ const BuyerDashboardHome = () => {
               </svg>
             </div>
             <div className="stat-title">Total Orders</div>
-            <div className="stat-value">{myOrders.length}</div>
-            <div className="stat-desc">All time</div>
+            <div className="stat-value text-primary">{totalOrders}</div>
+            <div className="stat-desc">All time orders</div>
           </div>
 
           <div className="stat">
-            <div className="stat-figure text-secondary">
+            <div className="stat-figure text-success">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -79,13 +117,13 @@ const BuyerDashboardHome = () => {
                 ></path>
               </svg>
             </div>
-            <div className="stat-title">Completed</div>
-            <div className="stat-value">{orderStats.delivered || 0}</div>
-            <div className="stat-desc">Successfully delivered</div>
+            <div className="stat-title">Delivered</div>
+            <div className="stat-value text-success">{deliveredCount}</div>
+            <div className="stat-desc">Successfully completed</div>
           </div>
 
           <div className="stat">
-            <div className="stat-figure text-accent">
+            <div className="stat-figure text-info">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -101,58 +139,98 @@ const BuyerDashboardHome = () => {
               </svg>
             </div>
             <div className="stat-title">In Progress</div>
-            <div className="stat-value">{(orderStats.approved || 0) + (orderStats.inProduction || 0)}</div>
+            <div className="stat-value text-info">{approvedCount + inProductionCount + shippedCount}</div>
             <div className="stat-desc">Being processed</div>
+          </div>
+
+          <div className="stat">
+            <div className="stat-figure text-warning">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                className="inline-block h-8 w-8 stroke-current"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <div className="stat-title">Pending</div>
+            <div className="stat-value text-warning">{pendingCount}</div>
+            <div className="stat-desc">Awaiting approval</div>
           </div>
         </div>
       </div>
 
       {/* Order Status Chart */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="text-xl font-semibold mb-4">Order Status Overview</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={statusData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#8884d8" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {statusData.length > 0 && (
+        <div className="bg-base-100 p-6 rounded-lg shadow-lg mb-8">
+          <h3 className="text-2xl font-semibold mb-4">Order Status Distribution</h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={statusData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                {statusData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Recent Orders */}
-      <div className="mt-8">
+      <div className="bg-base-100 p-6 rounded-lg shadow-lg">
         <h3 className="text-2xl font-semibold mb-4">Recent Orders</h3>
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Status</th>
-                <th>Order Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myOrders.slice(0, 5).map((order) => (
-                <tr key={order._id}>
-                  <td>{order.productTitle || order.productName}</td>
-                  <td>
-                    <span className={`badge ${
-                      order.orderStatus === 'Delivered' ? 'badge-success' :
-                      order.orderStatus === 'Pending' ? 'badge-warning' :
-                      order.orderStatus === 'Approved' ? 'badge-info' :
-                      'badge-neutral'
-                    }`}>
-                      {order.orderStatus}
-                    </span>
-                  </td>
-                  <td>{new Date(order.orderDate).toLocaleDateString()}</td>
+        {recentOrders.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No orders yet. Start shopping to see your orders here!</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Price</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order._id}>
+                    <td>{order.productTitle || order.productName || 'N/A'}</td>
+                    <td>{order.orderQuantity || order.quantity || 0}</td>
+                    <td>
+                      <span className={`badge ${
+                        order.orderStatus === 'Delivered' ? 'badge-success' :
+                        order.orderStatus === 'Shipped' ? 'badge-info' :
+                        order.orderStatus === 'In Production' ? 'badge-primary' :
+                        order.orderStatus === 'Approved' ? 'badge-accent' :
+                        order.orderStatus === 'Pending' ? 'badge-warning' :
+                        order.orderStatus === 'Cancelled' ? 'badge-error' :
+                        'badge-ghost'
+                      }`}>
+                        {order.orderStatus || 'Unknown'}
+                      </span>
+                    </td>
+                    <td>{new Date(order.orderDate || order.createdAt).toLocaleDateString()}</td>
+                    <td>${order.totalPrice || order.price || 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
