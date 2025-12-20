@@ -15,6 +15,24 @@ const AllProductsAdmin = () => {
         }
     });
 
+    const handleToggleShowOnHome = async (id, currentStatus) => {
+        try {
+            await axiosSecure.patch(`/products/${id}`, {
+                showOnHomePage: !currentStatus
+            });
+            refetch();
+            Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: `Product ${!currentStatus ? 'will now' : 'will no longer'} show on home page.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            Swal.fire('Error!', 'Failed to update product.', 'error');
+        }
+    };
+
     const handleDelete = async (id) => {
         const result = await Swal.fire({
             title: 'Are you sure?',
@@ -60,6 +78,7 @@ const AllProductsAdmin = () => {
                             <th>Price</th>
                             <th>Available Qty</th>
                             <th>Manager</th>
+                            <th>Show on Home</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -71,6 +90,14 @@ const AllProductsAdmin = () => {
                                 <td>${product.unitPrice}</td>
                                 <td>{product.availableQuantity}</td>
                                 <td>{product.managerEmail}</td>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        className="toggle toggle-success"
+                                        checked={product.showOnHomePage || false}
+                                        onChange={() => handleToggleShowOnHome(product._id, product.showOnHomePage)}
+                                    />
+                                </td>
                                 <td>
                                     <button
                                         onClick={() => handleDelete(product._id)}
