@@ -3,6 +3,7 @@ import useAuth from '../../../hooks/useAuth';
 import useAxiosSecure from '../../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import Swal from 'sweetalert2';
+import { bangladeshDistricts } from '../../../data/districts';
 
 const ApprovedOrders = () => {
     const { user } = useAuth();
@@ -258,19 +259,22 @@ const ApprovedOrders = () => {
                                 </select>
                             </div>
 
-                            {/* Location Input */}
+                            {/* Location District Dropdown */}
                             <div className="form-control mb-4">
                                 <label className="label">
-                                    <span className="label-text text-base-content">Location *</span>
+                                    <span className="label-text text-base-content">District *</span>
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     value={trackingData.location}
                                     onChange={(e) => setTrackingData({ ...trackingData, location: e.target.value })}
-                                    placeholder="e.g., Dhaka Factory, Warehouse A"
-                                    className="input input-bordered bg-base-100 text-base-content"
+                                    className="select select-bordered bg-base-100 text-base-content"
                                     required
-                                />
+                                >
+                                    <option value="">Select District</option>
+                                    {bangladeshDistricts.map((district) => (
+                                        <option key={district} value={district}>{district}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             {/* Note Textarea */}

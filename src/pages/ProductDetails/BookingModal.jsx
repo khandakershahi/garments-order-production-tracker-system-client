@@ -5,6 +5,7 @@ import useAxiosSecure from '../../hooks/useAxiosSecure';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import { FaTimes, FaDollarSign } from 'react-icons/fa';
+import { bangladeshDistricts } from '../../data/districts';
 
 const BookingModal = ({ isOpen, onClose, productData, isUser }) => {
     const { user } = useAuth();
@@ -37,6 +38,7 @@ const BookingModal = ({ isOpen, onClose, productData, isUser }) => {
             firstName: user?.displayName?.split(' ')[0] || '', // Pre-fill first name if available
             lastName: user?.displayName?.split(' ')[1] || '', // Pre-fill last name if available
             contactNumber: '',
+            district: '',
             deliveryAddress: '',
             additionalNotes: '',
         }
@@ -65,6 +67,7 @@ const BookingModal = ({ isOpen, onClose, productData, isUser }) => {
             totalPrice: parseFloat(data.totalPrice),
             customerName: `${data.firstName} ${data.lastName}`,
             contactNumber: data.contactNumber,
+            district: data.district,
             deliveryAddress: data.deliveryAddress,
             paymentOption: productData.paymentOption,
             additionalNotes: data.additionalNotes || null,
@@ -225,8 +228,19 @@ const BookingModal = ({ isOpen, onClose, productData, isUser }) => {
                     </div>
 
                     <div className="form-control">
+                        <label className="label"><span className="label-text">District</span></label>
+                        <select {...register("district", { required: "District is required" })} className="select select-bordered w-full">
+                            <option value="">Select District</option>
+                            {bangladeshDistricts.map((district) => (
+                                <option key={district} value={district}>{district}</option>
+                            ))}
+                        </select>
+                        {errors.district && <p className="text-error text-sm mt-1">{errors.district.message}</p>}
+                    </div>
+
+                    <div className="form-control">
                         <label className="label"><span className="label-text">Delivery Address</span></label>
-                        <textarea {...register("deliveryAddress", { required: "Delivery Address is required" })} className="textarea textarea-bordered w-full h-20" />
+                        <textarea {...register("deliveryAddress", { required: "Delivery Address is required" })} className="textarea textarea-bordered w-full h-20" placeholder="House/Flat, Road, Area" />
                         {errors.deliveryAddress && <p className="text-error text-sm mt-1">{errors.deliveryAddress.message}</p>}
                     </div>
 
