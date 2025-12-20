@@ -79,7 +79,7 @@ const UserProfile = () => {
                     <div className="avatar">
                         <div className="w-32 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                             <img
-                                src={user.photoURL || 'https://via.placeholder.com/150'}
+                                src={Array.isArray(user.photoURL) ? user.photoURL[0] : user.photoURL || 'https://via.placeholder.com/150'}
                                 alt={`${user.displayName}'s profile`}
                             />
                         </div>

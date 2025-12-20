@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import useAuth from "./useAuth";
 
 const axiosSecure = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: "https://garments-order-production-tracker-s-six.vercel.app",
     timeout: 10000,
     headers: { "X-Custom-Header": "foobar" },
 });

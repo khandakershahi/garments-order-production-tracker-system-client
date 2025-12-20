@@ -33,10 +33,15 @@ const SocialLogin = ({ showToast }) => {
                     const defaultRole = "buyer";
                     const defaultStatus = "pending";
 
+                    // Handle photoURL - it might be an array from Google auth
+                    const photoURL = Array.isArray(result.user.photoURL) 
+                        ? result.user.photoURL[0] 
+                        : result.user.photoURL;
+
                     const userInfo = {
                         email: result.user.email,
                         name: result.user.displayName,
-                        photoURL: result.user.photoURL,
+                        photoURL: photoURL,
                         role: defaultRole,
                         status: defaultStatus,
                     };

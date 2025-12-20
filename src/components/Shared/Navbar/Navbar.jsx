@@ -22,6 +22,16 @@ const Navbar = () => {
             .catch(error => console.error('Logout error:', error));
     };
 
+    // Helper function to get photo URL (handle array case from Google auth)
+    const getUserPhotoURL = () => {
+        // Check if photoURL is an array (sometimes happens with Google auth)
+        const photoURL = user?.photoURL;
+        if (Array.isArray(photoURL)) {
+            return photoURL[0] || user?.providerData?.[0]?.photoURL || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+        }
+        return photoURL || user?.providerData?.[0]?.photoURL || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+    };
+
     // -------------------------------------------------------------
     // 1. LOADING STATE CHECK
     // -------------------------------------------------------------
@@ -68,11 +78,7 @@ const Navbar = () => {
                     <img
                         className="w-10 rounded-full"
                         alt={user?.displayName || "User"}
-                        src={
-                            user?.photoURL ||
-                            user?.providerData?.[0]?.photoURL ||
-                            "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                        }
+                        src={getUserPhotoURL()}
                         referrerPolicy="no-referrer"
                     />
 
