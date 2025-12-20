@@ -166,20 +166,11 @@ const ApprovedOrders = () => {
                                 <td>{order.orderStatus}</td>
                                 <td>{order.paymentStatus || order.paymentOption}</td>
                                 <td>
-                                    <select
-                                        value={order.deliveryStatus || 'order_placed'}
-                                        onChange={(e) => handleDeliveryStatusUpdate(order._id, e.target.value)}
-                                        className="select select-bordered select-sm"
-                                    >
-                                        <option value="order_placed">Order Placed</option>
-                                        <option value="cutting_completed">Cutting Completed</option>
-                                        <option value="sewing_started">Sewing Started</option>
-                                        <option value="finishing">Finishing</option>
-                                        <option value="qc_checked">QC Checked</option>
-                                        <option value="packed">Packed</option>
-                                        <option value="shipped_out_for_delivery">Shipped / Out for Delivery</option>
-                                        <option value="delivered">Delivered</option>
-                                    </select>
+                                    <span className="badge badge-info badge-sm">
+                                        {order.deliveryStatus 
+                                            ? order.deliveryStatus.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) 
+                                            : 'Order Placed'}
+                                    </span>
                                 </td>
                                 <td>
                                     <div className="flex gap-2 flex-wrap">
