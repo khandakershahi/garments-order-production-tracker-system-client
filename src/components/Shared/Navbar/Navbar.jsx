@@ -52,10 +52,38 @@ const Navbar = () => {
 
 
     const navLinks = <>
-        <li><NavLink to="/">Home</NavLink></li>
-        <li><NavLink to="/all-products">All Products</NavLink></li>
-        <li><NavLink to="/about">About Us</NavLink></li>
-        <li><NavLink to="/contact">Contact</NavLink></li>
+        <li>
+            <NavLink 
+                to="/" 
+                className={({ isActive }) => isActive ? 'text-primary font-bold' : ''}
+            >
+                Home
+            </NavLink>
+        </li>
+        <li>
+            <NavLink 
+                to="/all-products" 
+                className={({ isActive }) => isActive ? 'text-primary font-bold' : ''}
+            >
+                All Products
+            </NavLink>
+        </li>
+        <li>
+            <NavLink 
+                to="/about" 
+                className={({ isActive }) => isActive ? 'text-primary font-bold' : ''}
+            >
+                About Us
+            </NavLink>
+        </li>
+        <li>
+            <NavLink 
+                to="/contact" 
+                className={({ isActive }) => isActive ? 'text-primary font-bold' : ''}
+            >
+                Contact
+            </NavLink>
+        </li>
     </>;
 
     // -------------------------------------------------------------
