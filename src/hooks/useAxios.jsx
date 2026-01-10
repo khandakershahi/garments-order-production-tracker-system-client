@@ -2,7 +2,7 @@ import axios from "axios";
 import React from "react";
 
 const axiosInstance = axios.create({
-    baseURL: "https://garments-order-production-tracker-s-six.vercel.app",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
 });
 
 const useAxios = () => {
