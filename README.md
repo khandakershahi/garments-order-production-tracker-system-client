@@ -2,73 +2,112 @@
 
 A comprehensive garments order and production management system built with React. This application enables buyers to place orders, managers to handle production, and administrators to oversee the entire operation.
 
-## Features
+🔗 **Live Demo**: [https://garments-order-production-tracker-s-six.vercel.app](https://garments-order-production-tracker-s-six.vercel.app)
 
-### Authentication & Authorization
-- Email and Google authentication
+## 🎯 Demo Accounts
+
+- **Admin**: `admin@test.com` / `123456Ab@`
+- **Manager**: `a@test.com` / `123456Ab@`
+- **Buyer**: `a@test.com` / `123456Ab@`
+
+## ✨ Features
+
+### 🔐 Authentication & Authorization
+- Email and Google authentication with Firebase
 - Role-based access control (Admin, Manager, Buyer)
 - User profile management with photo upload
-- Account suspension system
+- Profile update functionality
+- Account suspension system with feedback
+- Demo login buttons for easy testing
 
-### Buyer Features
-- Browse all garments products with search and category filters
+### 🛒 Buyer Features
+- Browse products with advanced filtering (search, category, price range)
+- Multiple sorting options (newest, price, name)
 - View detailed product information with image gallery
 - Place orders with quantity customization
-- Track order status in real-time
-- Manage personal orders
+- Real-time order tracking with status updates
+- Manage personal orders dashboard
 - Submit product feedback and ratings
-- View order history
+- View order history with pagination
 
-### Manager Features
+### 👔 Manager Features
 - Add new products with multiple images
 - Edit and delete products
-- Manage pending orders (approve/reject)
+- Manage pending orders (approve/reject with feedback)
 - View approved orders
 - Track production status
-- Upload product feature images to ImgBB
+- Upload product images to ImgBB
+- Product inventory management
 
-### Admin Features
-- Manage all users (promote, demote, suspend)
+### 👨‍💼 Admin Features
+- Comprehensive user management (promote, demote, suspend)
+- Suspend users with reason and feedback
 - View all products with search functionality
 - Update product details including pricing
 - Toggle "Show on Home" for featured products
-- Delete products
+- Delete products with confirmation
 - View all orders across the system
-- Track order statistics
-- Comprehensive dashboard with metrics
+- Track order statistics and metrics
+- Full system overview dashboard
 
-### General Features
+### 🎨 UI/UX Features
+- **11 Home Page Sections**: Hero, Categories, Products, Features, How It Works, Highlights, Statistics, Testimonials, Trust Badges, Newsletter, CTA
 - Dynamic page titles with react-helmet-async
 - Dark/light mode toggle
-- Responsive design for all devices
+- Fully responsive design for all devices
+- Scroll-to-top button site-wide
 - Loading states and error handling
-- 404 Not Found page
-- Animated UI with Framer Motion
-- Toast notifications with SweetAlert2
-- Image upload integration with ImgBB
-- Real-time data updates with TanStack Query
+- Custom 404 Not Found page
+- Smooth animations with Framer Motion
+- Beautiful toast notifications with SweetAlert2
+- Sticky navigation bars
+- Interactive map on Contact page (Leaflet)
 
-## Technologies
+### 📄 Additional Pages
+- About Us with company stats
+- Contact page with map integration
+- FAQ page with collapsible questions
+- Help Center with topic cards
+- Privacy Policy
+- Terms & Conditions
+
+### 🔍 Advanced Filtering & Search
+- **Search**: Real-time product search
+- **Category Filter**: 8 product categories
+- **Price Range Filter**: Under $50, $50-$100, $100-$200, $200-$500, $500+
+- **Sorting**: Newest, Oldest, Price (Low to High), Price (High to Low), Name (A-Z, Z-A)
+- **Pagination**: Smooth navigation through products
+
+### 💳 Payment Integration
+- Stripe payment gateway integration
+- Payment success/cancellation handling
+- Payment history tracking
+
+## 🛠 Technologies
 
 ### Core
 - **React** v19.2.3 - UI library
-- **Vite** v6.2.3 - Build tool and dev server
-- **React Router** v7.1.3 - Client-side routing
+- **Vite** v7.2.4 - Build tool and dev server
+- **React Router** v7.10.1 - Client-side routing
 
 ### State Management & Data Fetching
 - **TanStack Query** v4.36.1 - Server state management
 - **React Hook Form** v7.68.0 - Form state management
 - **Axios** v1.7.9 - HTTP client
 
-### Styling
+### Styling & Animation
 - **Tailwind CSS** v4.1.17 - Utility-first CSS
 - **DaisyUI** v5.5.8 - Component library
 - **Framer Motion** v12.0.2 - Animation library
+- **React Countup** v6.5.3 - Animated counters
+- **React Intersection Observer** v9.16.1 - Scroll animations
 
 ### UI Components & Icons
 - **React Icons** v5.5.0 - Icon library
 - **Lottie React** v2.4.0 - Animation player
 - **SweetAlert2** v11.15.10 - Beautiful alerts
+- **Leaflet** v1.9.4 - Interactive maps
+- **React-Leaflet** v5.0.0 - React wrapper for Leaflet
 
 ### SEO & Meta
 - **react-helmet-async** v2.0.5 - Dynamic page titles
@@ -76,13 +115,16 @@ A comprehensive garments order and production management system built with React
 ### Authentication
 - **Firebase** v11.1.0 - Authentication and hosting
 
+### Payment
+- **Stripe** - Payment processing
+
 ### Development Tools
 - **ESLint** v9.18.0 - Code linting
 - **PostCSS** v8.4.49 - CSS processing
 
-## Environment Variables
+## 📦 Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env.local` file for development and `.env.production` for production:
 
 ```env
 VITE_apiKey=your_firebase_api_key
@@ -95,26 +137,23 @@ VITE_image_host_key=your_imgbb_api_key
 VITE_API_URL=http://localhost:5000
 ```
 
-## Installation & Setup
+## 🚀 Installation & Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/garments-order-production-tracker-system-client.git
+   git clone https://github.com/khandakershahi/garments-order-production-tracker-system-client.git
    cd garments-order-production-tracker-system-client
    ```
 
 2. **Install dependencies**
    ```bash
-   npm install
-   ```
-   
-   Note: If you encounter peer dependency issues with React 19, use:
-   ```bash
    npm install --legacy-peer-deps
    ```
+   
+   Note: Use `--legacy-peer-deps` for React 19 compatibility
 
 3. **Configure environment variables**
-   - Create a `.env` file in the root directory
+   - Create `.env.local` and `.env.production` files
    - Add all required environment variables (see above)
 
 4. **Start development server**
@@ -134,103 +173,137 @@ VITE_API_URL=http://localhost:5000
    npm run preview
    ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
-├── assets/           # Static assets (images, JSON files)
-├── components/       # Reusable components
-│   ├── Forbidden/    # Access denied component
-│   ├── Loading/      # Loading spinner component
-│   ├── Logo/         # App logo component
-│   └── Shared/       # Shared components (Navbar, Footer)
-├── context/          # React Context providers
-│   └── AuthContext/  # Authentication context
-├── firebase/         # Firebase configuration
-├── hooks/            # Custom React hooks
-│   ├── useAuth.jsx   # Authentication hook
-│   ├── useAxios.jsx  # Axios instance hook
+├── assets/              # Static assets (images, JSON files)
+├── components/          # Reusable components
+│   ├── Forbidden/       # Access denied component
+│   ├── Loading/         # Loading spinner component
+│   ├── Logo/            # App logo component
+│   ├── ScrollToTop/     # Scroll to top button
+│   └── Shared/          # Shared components (Navbar, Footer)
+├── context/             # React Context providers
+│   └── AuthContext/     # Authentication context
+├── firebase/            # Firebase configuration
+├── hooks/               # Custom React hooks
+│   ├── useAuth.jsx      # Authentication hook
+│   ├── useAxios.jsx     # Axios instance hook
 │   ├── useAxiosSecure.jsx  # Secure axios with auth
-│   └── useRole.jsx   # User role hook
-├── Layouts/          # Layout components
-│   ├── AuthLayout.jsx      # Authentication pages layout
+│   └── useRole.jsx      # User role hook
+├── Layouts/             # Layout components
+│   ├── AuthLayout.jsx   # Authentication pages layout
 │   ├── DashboardLayout.jsx # Dashboard layout
-│   └── RootLayout.jsx      # Main app layout
-├── pages/            # Page components
-│   ├── AboutUs/      # About page
-│   ├── AllProducts/  # Products listing page
-│   ├── Auth/         # Login/Register pages
-│   ├── Contact/      # Contact page
-│   ├── Dashboard/    # Dashboard pages
-│   │   ├── Admin/    # Admin-specific pages
-│   │   ├── Manager/  # Manager-specific pages
-│   │   └── User/     # User/Buyer pages
-│   ├── Home/         # Homepage sections
-│   ├── NotFound/     # 404 page
+│   └── RootLayout.jsx   # Main app layout
+├── pages/               # Page components
+│   ├── AboutUs/         # About page
+│   ├── AllProducts/     # Products listing with filters
+│   ├── Auth/            # Login/Register pages
+│   ├── Contact/         # Contact page with map
+│   ├── FAQ/             # FAQ page
+│   ├── HelpCenter/      # Help center page
+│   ├── PrivacyPolicy/   # Privacy policy page
+│   ├── TermsConditions/ # Terms & conditions page
+│   ├── Dashboard/       # Dashboard pages
+│   │   ├── Admin/       # Admin-specific pages
+│   │   ├── Manager/     # Manager-specific pages
+│   │   ├── User/        # User/Buyer pages
+│   │   ├── Payment/     # Payment pages
+│   │   └── UserProfile/ # User profile page
+│   ├── Home/            # Homepage sections
+│   │   ├── Hero/        # Hero slider
+│   │   ├── Categories/  # Product categories
+│   │   ├── ProductsSection/ # Featured products
+│   │   ├── Features/    # Features section
+│   │   ├── HowItWorks/  # How it works
+│   │   ├── Highlights/  # Highlights section
+│   │   ├── Statistics/  # Animated statistics
+│   │   ├── Feedback/    # Testimonials
+│   │   ├── TrustBadges/ # Trust badges
+│   │   ├── Newsletter/  # Newsletter signup
+│   │   └── CTABanner/   # Call to action
+│   ├── NotFound/        # 404 page
 │   └── ProductDetails/  # Product detail page
-├── routes/           # Route configuration
-│   ├── AdminRoute.jsx    # Admin route guard
-│   ├── ManagerRoute.jsx  # Manager route guard
-│   ├── PrivateRoute.jsx  # Auth route guard
-│   └── router.jsx        # Main router config
-├── App.jsx           # Root component
-└── main.jsx          # App entry point
+├── routes/              # Route configuration
+│   ├── AdminRoute.jsx   # Admin route guard
+│   ├── ManagerRoute.jsx # Manager route guard
+│   ├── PrivateRoute.jsx # Auth route guard
+│   └── router.jsx       # Main router config
+├── App.jsx              # Root component
+└── main.jsx             # App entry point
 ```
 
-## Available Scripts
+## 📜 Available Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
-## Key Features Implementation
+## 🎯 Key Features Implementation
 
 ### Role-Based Access Control
 The application implements three user roles with different permissions:
-- **Buyer**: Can view products and place orders
-- **Manager**: Can manage products and orders
-- **Admin**: Full system access including user management
+- **Buyer**: Can view products, place orders, and track deliveries
+- **Manager**: Can manage products and approve/reject orders
+- **Admin**: Full system access including user management and system configuration
 
-### Image Upload
+### Advanced Product Filtering
+- **Search**: Real-time search across product names and descriptions
+- **Category**: Filter by 8 garment categories
+- **Price Range**: 5 price brackets from under $50 to $500+
+- **Sorting**: 6 sorting options for customized product display
+- **Pagination**: Efficient navigation through large product catalogs
+
+### Image Upload & Management
 Products support:
 - Feature image (main product image)
-- Multiple product images (gallery)
-- Images uploaded to ImgBB for reliable hosting
+- Multiple product images (gallery view)
+- Images uploaded to ImgBB for reliable CDN hosting
+- Image preview before upload
 
-### Order Tracking
-Buyers can track their orders through various states:
-- Pending (awaiting manager approval)
-- Approved (confirmed by manager)
-- In Production (being manufactured)
-- Shipped (on the way to buyer)
-- Delivered (completed)
+### Order Tracking System
+Complete order lifecycle management:
+1. **Pending** - Order placed, awaiting manager approval
+2. **Approved** - Manager confirmed the order
+3. **In Production** - Order being manufactured
+4. **Shipped** - Order dispatched to buyer
+5. **Delivered** - Order completed successfully
 
-### Product Management
-- Search products by name
-- Filter by category (Shirt, Pant, Jacket, Panjabi, Sharee, Three Piece, Kurti, Others)
-- Toggle visibility on homepage
-- Full CRUD operations for managers/admins
+### User Profile Management
+- Update display name and photo URL
+- Real-time profile updates in both Firebase and MongoDB
+- Secure endpoint ensuring users can only update their own profile
+- Success/error feedback with SweetAlert2
 
-## Browser Support
+### Payment Integration
+- Stripe checkout integration
+- Secure payment processing
+- Payment success/cancellation handling
+- Payment history tracking in database
+
+## 🌐 Browser Support
 
 - Chrome (latest)
 - Firefox (latest)
 - Safari (latest)
 - Edge (latest)
 
-## Contributing
+## 🤝 Contributing
 
 This is an educational project. Contributions, issues, and feature requests are welcome!
 
-## License
+## 📄 License
 
 This project is for educational purposes as part of Programming Hero curriculum.
 
-## Contact
+## 📞 Contact
 
-For any queries, please reach out through the contact page on the application.
+- **Portfolio**: [khandakershahi.com](https://khandakershahi.com)
+- **GitHub**: [@khandakershahi](https://github.com/khandakershahi)
+- **LinkedIn**: [khandaker-shahi](https://linkedin.com/in/khandaker-shahi)
 
 ---
 
-**Note**: Make sure the backend server is running before starting the client application.
+**Note**: Make sure the backend server is running before starting the client application. Backend repository: [garments-order-production-tracker-system-server](https://github.com/khandakershahi/garments-order-production-tracker-system-server)
