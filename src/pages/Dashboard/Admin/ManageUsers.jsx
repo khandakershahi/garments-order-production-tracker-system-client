@@ -176,7 +176,7 @@ const ManageUsers = () => {
 
     return (
         <div className="bg-base-100 min-h-screen p-6">
-            <h2 className="text-3xl font-bold mb-6 text-center">Manage Users: {totalCount}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">Manage Users: {totalCount}</h2>
             
             {/* Search Input */}
             <label className="input input-bordered bg-base-200 flex items-center gap-2 max-w-md mb-6">

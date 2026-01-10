@@ -7,6 +7,10 @@ import Register from "../pages/Auth/Register/Register";
 import AllProducts from "../pages/AllProducts/AllProducts";
 import AboutUs from "../pages/AboutUs/AboutUs";
 import Contact from "../pages/Contact/Contact";
+import FAQ from "../pages/FAQ/FAQ";
+import HelpCenter from "../pages/HelpCenter/HelpCenter";
+import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
+import TermsConditions from "../pages/TermsConditions/TermsConditions";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import DashboardHome from "../pages/Dashboard/DashboardHome/DashboardHome";
 import NotFound from "../pages/NotFound/NotFound";
@@ -66,6 +70,22 @@ export const router = createBrowserRouter([
       {
         path: '/contact',
         Component: Contact,
+      },
+      {
+        path: '/faq',
+        Component: FAQ,
+      },
+      {
+        path: '/help-center',
+        Component: HelpCenter,
+      },
+      {
+        path: '/privacy-policy',
+        Component: PrivacyPolicy,
+      },
+      {
+        path: '/terms-conditions',
+        Component: TermsConditions,
       },
     ]
   },

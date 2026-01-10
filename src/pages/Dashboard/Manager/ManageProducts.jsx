@@ -139,7 +139,7 @@ const ManageProducts = () => {
     return (
         <div className="bg-base-100 min-h-screen p-8">
             <div className="bg-base-200 p-8 rounded-xl shadow-lg">
-                <h2 className="text-4xl font-bold text-center mb-8 text-primary">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 text-primary">
                     Manage My Products ({products.length})
                 </h2>
 

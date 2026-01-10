@@ -3,6 +3,17 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaPaperPlane } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default marker icon in React Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -92,7 +103,7 @@ const Contact = () => {
                             initial={{ y: -50 }}
                             animate={{ y: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="text-5xl md:text-7xl font-bold text-base-content mb-6"
+                            className="text-4xl md:text-5xl font-bold text-base-content mb-6"
                         >
                             Get In Touch
                         </motion.h1>
@@ -264,7 +275,7 @@ const Contact = () => {
                 </div>
             </section>
 
-            {/* Map Section (Optional - can add real map later) */}
+            {/* Map Section */}
             <section className="py-20 bg-base-200">
                 <div className="container mx-auto px-4">
                     <motion.div
@@ -272,14 +283,27 @@ const Contact = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
-                        className="card bg-base-100 shadow-xl overflow-hidden"
                     >
-                        <div className="h-96 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                            <div className="text-center">
-                                <FaMapMarkerAlt className="text-6xl text-primary mx-auto mb-4" />
-                                <h3 className="text-2xl font-bold text-base-content">Our Location</h3>
-                                <p className="text-base-content/70 mt-2">Dhaka, Bangladesh</p>
-                            </div>
+                        <h2 className="text-4xl font-bold text-center text-base-content mb-8">
+                            Our Location
+                        </h2>
+                        <div className="card bg-base-100 shadow-xl overflow-hidden">
+                            <MapContainer
+                                center={[23.8103, 90.4125]}
+                                zoom={13}
+                                scrollWheelZoom={false}
+                                style={{ height: '400px', width: '100%' }}
+                            >
+                                <TileLayer
+                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                <Marker position={[23.8103, 90.4125]}>
+                                    <Popup>
+                                        Garments Order Tracker <br /> Dhaka, Bangladesh
+                                    </Popup>
+                                </Marker>
+                            </MapContainer>
                         </div>
                     </motion.div>
                 </div>

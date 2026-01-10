@@ -118,12 +118,12 @@ const Hero = () => {
                 >
                     <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between h-full">
                         {/* Descriptive Text Section */}
-                        <div className="flex-1 space-y-6 lg:mr-12 text-center lg:text-left">
+                        <div className="flex-1 space-y-3 md:space-y-6 lg:mr-12 text-center lg:text-left">
                             {/* DaisyUI Text Color (defined in slide data to match the background) */}
-                            <h1 className={`text-5xl font-extrabold leading-tight ${currentSlide.textColor}`}>
+                            <h1 className={`text-3xl md:text-5xl font-extrabold leading-tight ${currentSlide.textColor}`}>
                                 {currentSlide.title}
                             </h1>
-                            <p className={`text-xl max-w-lg opacity-90 ${currentSlide.textColor}`}>
+                            <p className={`text-base md:text-xl max-w-lg opacity-90 ${currentSlide.textColor}`}>
                                 {currentSlide.subtitle}
                             </p>
 
@@ -141,11 +141,11 @@ const Hero = () => {
                         </div>
 
                         {/* Visually Appealing Image Section */}
-                        <div className="flex-1 hidden lg:block">
+                        <div className="flex-1 mt-8 lg:mt-0">
                             <img
                                 src={currentSlide.image}
                                 alt={currentSlide.title}
-                                className="object-fill w-auto h-[500px] rounded-lg aspect-auto "
+                                className="object-contain w-full h-[300px] lg:h-[500px] rounded-lg mx-auto"
                             />
                         </div>
                     </div>

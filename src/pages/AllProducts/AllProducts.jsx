@@ -26,17 +26,21 @@ const AllProducts = () => {
 
     const [searchText, setSearchText] = useState('');
     const [category, setCategory] = useState('');
+    const [priceRange, setPriceRange] = useState('');
+    const [sortBy, setSortBy] = useState('');
     const [page, setPage] = useState(1);
     const {
         data,
         isLoading,
     } = useQuery({
-        queryKey: ['all-products', searchText, category, page],
+        queryKey: ['all-products', searchText, category, priceRange, sortBy, page],
         queryFn: async () => {
             const res = await axiosSecure.get('/products', {
                 params: {
                     searchText,
                     category,
+                    priceRange,
+                    sortBy,
                     page,
                     limit: ITEMS_PER_PAGE,
                 },
@@ -67,14 +71,14 @@ const AllProducts = () => {
 
                 {/* HEADER */}
                 <div className="text-center mb-10">
-                    <h1 className="text-4xl font-extrabold mb-2">All Products</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-2">All Products</h1>
                     <p className="text-base-content/70">
                         Browse our complete garment collection
                     </p>
                 </div>
 
                 {/* FILTER BAR */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
 
                     {/* Search */}
                     <div className="relative">
@@ -106,12 +110,49 @@ const AllProducts = () => {
                         ))}
                     </select>
 
+                    {/* Price Range */}
+                    <select
+                        className="select select-bordered w-full"
+                        value={priceRange}
+                        onChange={(e) => {
+                            setPriceRange(e.target.value);
+                            setPage(1);
+                        }}
+                    >
+                        <option value="">All Prices</option>
+                        <option value="0-50">Under $50</option>
+                        <option value="50-100">$50 - $100</option>
+                        <option value="100-200">$100 - $200</option>
+                        <option value="200-500">$200 - $500</option>
+                        <option value="500+">$500+</option>
+                    </select>
+
+                    {/* Sort By */}
+                    <select
+                        className="select select-bordered w-full"
+                        value={sortBy}
+                        onChange={(e) => {
+                            setSortBy(e.target.value);
+                            setPage(1);
+                        }}
+                    >
+                        <option value="">Sort By</option>
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="name-az">Name: A to Z</option>
+                        <option value="name-za">Name: Z to A</option>
+                    </select>
+
                     {/* Reset */}
                     <button
                         className="btn btn-outline"
                         onClick={() => {
                             setSearchText('');
                             setCategory('');
+                            setPriceRange('');
+                            setSortBy('');
                             setPage(1);
                         }}
                     >

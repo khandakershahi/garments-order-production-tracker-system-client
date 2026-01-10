@@ -16,11 +16,25 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm();
 
   const { signInUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Demo credentials
+  const demoAccounts = [
+    { email: "admin@test.com", password: "123456Ab@", role: "Admin" },
+    { email: "a@test.com", password: "123456Ab@", role: "Manager" },
+    { email: "b@test.com", password: "123456Ab@", role: "Buyer" },
+  ];
+
+  // Auto-fill function
+  const handleDemoLogin = (email, password) => {
+    setValue("email", email);
+    setValue("password", password);
+  };
 
   // Function to show a small success toast, now accepts a callback
   const showSuccessToast = (titleText, callback) => {
@@ -73,8 +87,34 @@ const Login = () => {
       </Helmet>
       <div className="flex items-center justify-center min-h-screen">
     <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
-      <h3 className="text-3xl text-center py-3">Welcome Back!</h3>
+      <h3 className="text-2xl md:text-3xl text-center py-3 font-bold">Welcome Back!</h3>
       <p className="text-center">Please login</p>
+      
+      {/* Demo Login Section */}
+      <div className="px-8 pt-4">
+        <div className="alert bg-base-200 py-2 border border-base-300">
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-sm">🎯 Demo Accounts</span>
+            </div>
+            <div className="space-y-2">
+              {demoAccounts.map((account, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleDemoLogin(account.email, account.password)}
+                  className="btn btn-sm btn-outline w-full justify-between"
+                >
+                  <span className="text-xs">{account.role}</span>
+                  <span className="text-xs opacity-70">{account.email}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs mt-2 opacity-70">Click to auto-fill credentials</p>
+          </div>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit(handleLogin)} className="card-body">
         <fieldset className="fieldset">
           {/* email */}

@@ -185,7 +185,7 @@ const AddProduct = () => {
     return (
         <div className="bg-base-100 min-h-screen p-8">
             <div className="bg-base-200 rounded-4xl p-8 shadow-xl">
-                <h2 className="text-4xl font-bold text-center mb-10 text-primary">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-primary">
                     Add New Product (Manager Access)
                 </h2>
 

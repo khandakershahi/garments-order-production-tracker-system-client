@@ -53,7 +53,7 @@ const AboutUs = () => {
                             initial={{ y: -50 }}
                             animate={{ y: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="text-5xl md:text-7xl font-bold text-base-content mb-6"
+                            className="text-4xl md:text-5xl font-bold text-base-content mb-6"
                         >
                             About Our Company
                         </motion.h1>

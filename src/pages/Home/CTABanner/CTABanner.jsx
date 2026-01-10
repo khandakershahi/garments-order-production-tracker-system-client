@@ -30,18 +30,12 @@ const CTABanner = () => {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                    className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
+                    className="flex justify-center"
                 >
                     {/* Primary Button: btn-secondary stands out against bg-primary */}
                     <a href="/register">
-                        <button className="btn btn-secondary btn-lg shadow-xl text-lg w-64">
+                        <button className="btn btn-secondary btn-lg shadow-xl text-lg px-12">
                             Start Tracking Now
-                        </button>
-                    </a>
-                    {/* Secondary Button: btn-outline maintains primary color but is less dominant */}
-                    <a href="/pricing">
-                        <button className="btn btn-outline btn-lg shadow-xl text-lg w-64 border-primary-content text-primary-content hover:bg-primary-content hover:text-primary">
-                            View Pricing Plans
                         </button>
                     </a>
                 </motion.div>
